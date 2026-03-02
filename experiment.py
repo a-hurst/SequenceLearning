@@ -145,7 +145,7 @@ class SequenceTask(klibs.Experiment):
 
         # Initialize runtime variables
         self.practiced_seqs = self.exp_factors["seq_name"]
-        print(self.practiced_seqs)
+        self._triggers_down = False
 
 
     def training_instructions(self):
@@ -215,8 +215,11 @@ class SequenceTask(klibs.Experiment):
         self.evm.add_event('sequence_on', onset=800)
         self.evm.add_event('timeout', onset=15000, after='sequence_on')
 
-        # Ensure triggers released prior to trial start
+        # Reset input state
+        self._triggers_down = False
         self._stick_prev_direction = 0
+
+        # Ensure triggers released prior to trial start
         while True:
             lt, rt = self.get_triggers()
             if lt < 0.5 and rt < 0.5:
@@ -231,24 +234,27 @@ class SequenceTask(klibs.Experiment):
         #   - Pre-sequence response?
         # For CC/MI, start progress at 7 with all elements lit?
 
-        # Show fixation stimuli prior to sequence onset
-        while self.evm.before("sequence_on"):
-            ui_request()
-            fill()
-            i = 0
-            for x_loc in [-3, -2, -1, 0, 1, 2, 3]:
-                loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
-                blit(self.fixation, 5, loc)
-                i += 1
-            flip()
-
+        # Initialize trial variables
         seq = self.sequence
         responses = []
         progress = 0
         num_wrong = 0
-        triggers_down = False
         err = "NA"
         done = False
+
+        # Show fixation stimuli prior to sequence onset
+        while self.evm.before("sequence_on"):
+            fill()
+            draw_sequence([self.fixation], self.item_offset, count=len(seq))
+            flip()
+            # If any responses prior to sequence onset, end trial w/ error
+            resp, timestamp = self.get_sequence_input()
+            if resp:
+                err = "too_soon"
+                done = True
+                break
+        
+        # Iterate over sequence elements until sequence complete (or error)
         start = None
         prev_time = None
         while not done:
@@ -263,41 +269,16 @@ class SequenceTask(klibs.Experiment):
                 start = sdl2.SDL_GetTicks()
                 prev_time = start
             
-            # Process inputs
+            # Determine the next input in the sequence
             if self.trial_type == "PP" and progress < 7:
                 target = seq[progress]
             else:
                 target = "triggers"
         
-            while True:
-
-                if self.gamepad:
-                    self.gamepad.update()
-                q = pump()
-                ui_request(queue=q)
-                
-                response = None
-                timestamp = None
-                buttons = get_buttons(q)
-                stick_movement = self.get_stick_movement()
-                if len(buttons):
-                    b = buttons[0]
-                    if b.name in self.buttonmap.keys():
-                        response = self.buttonmap[b.name]
-                        timestamp = b.timestamp
-                elif stick_movement:
-                    response = stick_movement
-                    timestamp = sdl2.SDL_GetTicks()
-                else:
-                    lt, rt = self.get_triggers()
-                    if lt > 0.5 and rt > 0.5:
-                        if not triggers_down:
-                            response = "triggers"
-                            timestamp = sdl2.SDL_GetTicks()
-                            triggers_down = True
-                    else:
-                        triggers_down = False
-                
+            # Wait for next sequence element to be input correctly
+            response = None
+            while response != target:
+                response, timestamp = self.get_sequence_input()
                 if response:
                     resp = {
                         'participant_id': P.participant_id,
@@ -318,7 +299,6 @@ class SequenceTask(klibs.Experiment):
                         num_wrong = 0
                         if target == "triggers":
                             done = True
-                        break
                     else:
                         # If 3 incorrect buttons in a row, stop and show error
                         if self.trial_type == "PP":
@@ -346,6 +326,9 @@ class SequenceTask(klibs.Experiment):
         else:
             feedback = self.errs[err]
             self.show_feedback(feedback, duration=2.5)
+            # If sequence hasn't been shown yet, recycle trial
+            if err == "too_soon":
+                raise TrialException("recycle")
 
         # Log individual sequence elements/responses to database
         if len(responses):
@@ -394,6 +377,43 @@ class SequenceTask(klibs.Experiment):
 
         if self.gamepad:
             self.gamepad.close()
+
+
+    def get_sequence_input(self):
+
+        # Refresh input from all sources
+        if self.gamepad:
+            self.gamepad.update()
+        q = pump()
+        ui_request(queue=q)
+        buttons = get_buttons(q)
+        stick_movement = self.get_stick_movement()
+        
+        response = None
+        timestamp = None
+
+        if len(buttons):
+            # Handle controller button input
+            b = buttons[0]
+            if b.name in self.buttonmap.keys():
+                response = self.buttonmap[b.name]
+                timestamp = b.timestamp
+        elif stick_movement:
+            # Handle stick movement input
+            response = stick_movement
+            timestamp = sdl2.SDL_GetTicks()
+        else:
+            # Handle trigger input
+            lt, rt = self.get_triggers()
+            if lt > 0.5 and rt > 0.5:
+                if not self._triggers_down:
+                    response = "triggers"
+                    timestamp = sdl2.SDL_GetTicks()
+                    self._triggers_down = True
+            else:
+                self._triggers_down = False
+
+        return (response, timestamp)
 
 
     def show_feedback(self, msg, duration=1.0, location=None):
