@@ -26,7 +26,7 @@ from sdl2.ext import get_key_state
 
 from gamepad import gamepad_init, button_pressed, ControllerButton, VirtualButton
 from gamepad_usb import get_all_controllers
-from picodraw import draw_arrow, draw_circle
+from picodraw import draw_arrow, draw_circle, draw_square, draw_star, draw_asterisk
 
 
 # Define colours for use in the experiment
@@ -69,6 +69,8 @@ class SequenceTask(klibs.Experiment):
         # Initialize stimulus sizes and layout
         self.item_offset = deg_to_px(2.2) # spacing between elements
         item_w = deg_to_px(1.5) # sequence element width
+        fix_size = deg_to_px(0.5) # fixation shape size
+        fix_t = deg_to_px(0.12) # fixation thickness (plus sign)
         arrow_t = deg_to_px(0.3) # arrow thickness
         self.block_msg_loc = (P.screen_c[0], int(P.screen_y * 0.4))
         self.lower_middle = (P.screen_c[0], int(P.screen_y * 0.75))
@@ -101,7 +103,12 @@ class SequenceTask(klibs.Experiment):
         }
 
         # Generate task stimuli
-        self.fixation = draw_circle(item_w // 3, MIDGREY)
+        self.fixations = {
+            'circle': draw_circle(fix_size, MIDGREY),
+            'diamond': draw_square(fix_size / sqrt(2), MIDGREY, angle=45),
+            'star': draw_star(fix_size, MIDGREY),
+            'plus': draw_asterisk(fix_size, fix_t, MIDGREY, spokes=4)
+        }
         self.icons = {
             "Left": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=0),
             "Up": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=90),
@@ -146,6 +153,12 @@ class SequenceTask(klibs.Experiment):
         # Initialize runtime variables
         self.practiced_seqs = self.exp_factors["seq_name"]
         self._triggers_down = False
+
+        # Create fixation map for training block
+        training_fixations = ['diamond', 'star', 'plus']
+        self.fixation_map = {}
+        for seq in self.practiced_seqs:
+            self.fixation_map[seq] = training_fixations.pop()
 
 
     def training_instructions(self):
@@ -200,7 +213,13 @@ class SequenceTask(klibs.Experiment):
 
     def trial_prep(self):
     
-        self.trial_type = P.condition if self.block_label == "training" else "PP"
+        if self.block_label == "training":
+            self.trial_type = P.condition
+            fixation_shape = self.fixation_map[self.seq_name]
+            self.fixation = self.fixations[fixation_shape]
+        else:
+            self.trial_type == "PP"
+            self.fixation = self.fixations['circle']
 
         if self.seq_name == "random":
             self.seq_type = "random"

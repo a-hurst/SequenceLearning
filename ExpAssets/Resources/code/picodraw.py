@@ -66,6 +66,16 @@ def draw_arrow(height, width, thickness, color, angle=0):
     return numpy.asarray(canvas)
 
 
+def draw_rect(width, height, color, angle=0):
+    # Prepare points for drawing
+    hw, hh = (width / 2, height / 2)
+    pts = [(-hw, -hh), (-hw, hh), (hw, hh), (hw, -hh)]
+    pts = _prepare_points(pts, angle)
+    # Draw and render square
+    canvas = _render_polygon(pts, color)
+    return numpy.asarray(canvas)
+
+
 def draw_square(size, color, angle=0):
     # Prepare points for drawing
     hs = size / 2
@@ -101,10 +111,9 @@ def draw_star(size, color, shape=0.5):
     return numpy.asarray(canvas)
 
 
-def draw_asterisk(size, thickness, color):
+def draw_asterisk(size, thickness, color, spokes=6):
     ht = thickness / 2.0 # half of the asterisk's thickness
     hs = size / 2.0 # half of the asterisk's size
-    spokes = 4
     pts = []
     for i in range(0, spokes):
         spoke = [-ht, -ht, -ht, -hs, ht, -hs, ht, -ht]
