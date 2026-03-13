@@ -60,6 +60,7 @@ CREATE TABLE trials (
     seq_name text not null,
     initial_rt integer not null,
     response_rt integer not null,
+    total_errs integer not null,
     err text not null
 );
 

@@ -75,7 +75,7 @@ class SequenceTask(klibs.Experiment):
 
         # Initialize custom text styles
         add_text_style("wrong", size='1.0deg', color=NICE_RED)
-        add_text_style("feedback", size='1.0deg')
+        add_text_style("feedback", size='0.7deg')
 
         # Define maps between inputs and input names
         self.stick_map = {
@@ -239,6 +239,7 @@ class SequenceTask(klibs.Experiment):
         responses = []
         progress = 0
         num_wrong = 0
+        total_errs = 0
         err = "NA"
         done = False
 
@@ -302,6 +303,7 @@ class SequenceTask(klibs.Experiment):
                     else:
                         # If 3 incorrect buttons in a row, stop and show error
                         if self.trial_type == "PP":
+                            total_errs += 1
                             num_wrong += 1
                             if num_wrong >= 3:
                                 err = "repeat_err"
@@ -315,14 +317,22 @@ class SequenceTask(klibs.Experiment):
                             done = True
                             break
 
-        # Show RT feedback for 1.5 seconds, or error if trial timed out
+        # Show RT feedback for 1.7 seconds, or error if trial timed out
         init_rt = responses[0]['rt'] if len(responses) else -1
         response_rt = -1
         if err == "NA":
+            # Get response time
             response_rt = (timestamp - start)
             rt_sec = "{:.3f}".format(response_rt / 1000.0)
-            feedback = message(rt_sec, style='feedback')
-            self.show_feedback(feedback, duration=1.5)
+            # Get total error count
+            if self.trial_type != "PP":
+                err_str = "? Errors"
+            if total_errs < 2:
+                err_str = "No Errors" if total_errs == 0 else "1 Error"
+            else:
+                err_str = "{0} Errors".format(total_errs)
+            feedback = message(rt_sec + " / " + err_str, style='feedback')
+            self.show_feedback(feedback, duration=1.7)
         else:
             feedback = self.errs[err]
             self.show_feedback(feedback, duration=2.5)
@@ -360,6 +370,7 @@ class SequenceTask(klibs.Experiment):
             "seq_name": self.seq_name,
             "initial_rt": init_rt,
             "response_rt": response_rt,
+            "total_errs": total_errs,
             "err": err,
         }
 
