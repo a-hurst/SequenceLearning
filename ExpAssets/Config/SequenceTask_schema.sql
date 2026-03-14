@@ -77,3 +77,16 @@ CREATE TABLE sequences (
     acc boolean not null,
     n_attempts integer not null
 );
+
+CREATE TABLE recall (
+    id integer primary key autoincrement not null,
+    participant_id integer not null references participants(id),
+    seq_order integer not null,
+    seq_name text not null,
+    shape text not null,
+    "index" integer not null,
+    element text not null,
+    response text not null,
+    rt integer not null,
+    acc boolean not null
+);

@@ -26,7 +26,9 @@ from sdl2.ext import get_key_state
 
 from gamepad import gamepad_init, button_pressed, ControllerButton, VirtualButton
 from gamepad_usb import get_all_controllers
-from picodraw import draw_arrow, draw_circle, draw_square, draw_star, draw_asterisk
+from picodraw import (
+    draw_arrow, draw_circle, draw_square, draw_star, draw_asterisk, draw_squircle
+)
 
 
 # Define colours for use in the experiment
@@ -72,6 +74,7 @@ class SequenceTask(klibs.Experiment):
         fix_size = deg_to_px(0.5) # fixation shape size
         fix_t = deg_to_px(0.12) # fixation thickness (plus sign)
         arrow_t = deg_to_px(0.3) # arrow thickness
+        cell_size = deg_to_px(2.0) # size of squares for recall phase
         self.block_msg_loc = (P.screen_c[0], int(P.screen_y * 0.4))
         self.lower_middle = (P.screen_c[0], int(P.screen_y * 0.75))
 
@@ -119,6 +122,7 @@ class SequenceTask(klibs.Experiment):
             "3": draw_button(item_w, "3", color=IBM_PALETTE[2]),
             "4": draw_button(item_w, "4", color=IBM_PALETTE[3]),
         }
+        self.cell = draw_squircle(cell_size, MIDGREY, radius=0.4)
         self.icons_grey = {}
         for name, stim in self.icons.items():
             new_stim = stim.copy()
@@ -152,6 +156,7 @@ class SequenceTask(klibs.Experiment):
 
         # Initialize runtime variables
         self.practiced_seqs = self.exp_factors["seq_name"]
+        self.seq_history = []
         self._triggers_down = False
 
         # Create fixation map for training block
@@ -170,10 +175,11 @@ class SequenceTask(klibs.Experiment):
             'fix_plus': [],
             'seq': [],
             'seq_grey': [],
+            'recall_cells': []
         }
         demo_seq = ['2', '1', '3', 'Right', 'Up', 'Down', 'Left']
         i = 0
-        for x_loc in [-3, -2, -1, 0, 1, 2, 3]:
+        for x_loc in get_x_locs(len(demo_seq)):
             loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
             stimset['fixation'].append((self.fixations['circle'], loc))
             stimset['fix_diamond'].append((self.fixations['diamond'], loc))
@@ -181,9 +187,12 @@ class SequenceTask(klibs.Experiment):
             stimset['fix_plus'].append((self.fixations['plus'], loc))
             stimset['seq'].append((self.icons[demo_seq[i]], loc))
             stimset['seq_grey'].append((self.icons_grey[demo_seq[i]], loc))
+            stimset['recall_cells'].append((self.cell, loc))
             i += 1
         # Generate additional stimuli
         stimset['seq_progress'] = stimset['seq'][:2] + stimset['seq_grey'][2:]
+        stimset['seq_recall'] = stimset['seq'][:3]
+        stimset['seq_recall2'] = stimset['seq'][:2]
         feedback = message("4.234 / No Errors", style='feedback')
         stimset['feedback'] = [(feedback, P.screen_c)]
         return stimset
@@ -332,6 +341,48 @@ class SequenceTask(klibs.Experiment):
             stim['seq_grey'],
         )
 
+    def recall_instructions(self):
+        stim = self.get_demo_stim()
+        self.show_demo_text(
+            [("Training complete! Before we begin the test phase, we want to check how "
+             "well you\ncan remember the items of the three sequences you practiced."),
+             "Please put the controller down and press the space bar to continue."],
+            [], msg_y = int(P.screen_y * 0.4)
+        )
+        self.show_demo_text(
+            ("For each unique starting shape (star, diamond, or plus), you will be "
+             "asked to try and\nremember the corresponding sequence to the best of "
+             "your memory."),
+            stim['recall_cells'],
+            msg_y = int(P.screen_y * 0.2)
+        )
+        self.show_demo_text(
+            ("Instead of using the controller, please enter the sequences using the "
+             "number\nand arrow keys on the keyboard."),
+            stim['recall_cells'] + stim['seq_recall'],
+            msg_y = int(P.screen_y * 0.2)
+        )
+        self.show_demo_text(
+            ("This section is not timed, so don't worry about answering quickly! Just "
+             "do\nyour best to remember the items for each sequence."),
+            stim['recall_cells'] + stim['seq_recall'],
+            msg_y = int(P.screen_y * 0.2)
+        )
+        self.show_demo_text(
+            ("Don't worry if you haven't fully memorized a sequence, it's okay if "
+             "you don't remember\nperfectly. If you can't remember an item just "
+             "take a guess!"),
+            stim['recall_cells'] + stim['seq_recall'],
+            msg_y = int(P.screen_y * 0.2)
+        )
+        self.show_demo_text(
+            ("If you make a mistake typing the sequence, press the Backspace key to "
+             "undo the\nprevious item. When you are ready to submit, press the "
+             "Enter key."),
+            stim['recall_cells'] + stim['seq_recall2'],
+            msg_y = int(P.screen_y * 0.2)
+        )
+
     def test_instructions(self):
         stim = self.get_demo_stim()
         self.show_demo_text(
@@ -391,6 +442,10 @@ class SequenceTask(klibs.Experiment):
             ),
         }
 
+        # If starting the final block, run requence recall
+        if self.block_label == "test":
+            self.run_seqence_recall()
+
         # Show block instructions
         if self.block_label == "practice":
             self.practice_instructions()
@@ -421,6 +476,7 @@ class SequenceTask(klibs.Experiment):
             self.trial_type = P.condition
             fixation_shape = self.fixation_map[self.seq_name]
             self.fixation = self.fixations[fixation_shape]
+            self.seq_history.append(self.seq_name)
         else:
             self.trial_type = "PP"
             self.fixation = self.fixations['circle']
@@ -611,6 +667,102 @@ class SequenceTask(klibs.Experiment):
 
         if self.gamepad:
             self.gamepad.close()
+
+
+    def run_seqence_recall(self):
+        # Get order of last shapes from training block
+        if len(self.seq_history):
+            seqs_rev = reversed(self.seq_history)
+            seq_order = [*dict.fromkeys(seqs_rev)]
+            seq_order.reverse()
+        else:
+            seq_order = list(self.fixation_map.keys())
+
+        # Run through instuctions and wait for input
+        self.recall_instructions()
+        msg = message("When you're ready, press any key to start.")
+        self.show_feedback(msg, duration=1.0)
+        any_key()
+        
+        # Collect recall responses in sequential order
+        for seq in seq_order:
+            target_seq = P.sequences[seq]
+            shape = self.fixation_map[seq]
+            resp = self.sequence_recall(shape, len(target_seq))
+            # Log response to database
+            sequence = []
+            for i in range(len(target_seq)):
+                element = {
+                    'participant_id': P.participant_id,
+                    'seq_order': seq_order.index(seq) + 1,
+                    'seq_name': seq,
+                    'shape': shape,
+                    'index': i + 1,
+                    'element': target_seq[i],
+                    'response': resp[i]['item'],
+                    'rt': resp[i]['rt'],
+                    'acc': resp[i] == target_seq[i],
+                }
+                sequence.append(element)
+            self.db.insert(sequence, table='recall')
+
+        # Wait for participant to pick up controller and press a button
+        msg = message(
+            ("Recall phase complete!\n\nPlease pick up the controller and press any "
+            "button to continue."), align='center'
+        )
+        self.show_feedback(msg, duration=1.0)
+        button = False
+        while not button:
+            q = pump()
+            ui_request(queue=q)
+            button = len(get_buttons(q))
+
+
+    def sequence_recall(self, shape, seq_len):
+        # Generate prompt message and get sequence item locations
+        shape_plural = shape + "ses" if shape == "plus" else shape + "s"
+        prompt = (
+            "Please enter the sequence that followed the *{0}* to the best of\n"
+            "your memory, using the keyboard:"
+        )
+        msg = message(prompt.format(shape_plural), align='center')
+        x_locs = get_x_locs(seq_len)
+
+        # Start input loop and collect recall response
+        start = sdl2.SDL_GetTicks()
+        resp = []
+        done = False
+        while not done:
+            # Check for keyboard input
+            q = pump()
+            ui_request(queue=q)
+            for k, timestamp in get_keys(q):
+                if k == "Backspace":
+                    resp = resp[:-1]
+                elif k in ("Return", "Enter"):
+                    if len(resp) == seq_len:
+                        done = True
+                        break
+                elif k in self.icons.keys():
+                    prev = resp[-1]['timestamp'] if len(resp) else start
+                    if len(resp) < seq_len:
+                        rt = timestamp - prev
+                        resp += [{'item': k, 'timestamp': timestamp, 'rt': rt}]
+
+            # Draw the screen and current progress
+            fill()
+            blit(msg, 5, (P.screen_c[0], int(P.screen_y * 0.2)))
+            for i in range(seq_len):
+                loc_x = int(P.screen_c[0] + self.item_offset * x_locs[i])
+                loc_y = int(P.screen_y * 0.5)
+                blit(self.fixations[shape], 5, (loc_x, int(P.screen_y * 0.38)))
+                blit(self.cell, 5, (loc_x, loc_y))
+                if i < len(resp):
+                    blit(self.icons[resp[i]['item']], 5, (loc_x, loc_y))
+            flip()
+
+        return resp
 
 
     def get_sequence_input(self):
@@ -812,7 +964,7 @@ def get_keys(events):
             key = sdl2.SDL_GetKeyName(e.key.keysym.sym).decode('utf-8')
             if "Keypad" in key:
                 key = key.replace("Keypad ", "")
-            keys.append(key)
+            keys.append((key, e.key.timestamp))
     return keys
 
 
@@ -841,16 +993,20 @@ def random_choices2(x, n=1):
     return out
 
 
+def get_x_locs(seq_len):
+    # Gets the x-axis offsets for a sequence of a given length
+    offset = (seq_len - 1) / 2
+    return [i - offset for i in range(seq_len)]
+
+
 def draw_sequence(elements, spacing, count=None):
     if not count:
         count = len(elements)
     # If count exceeds number of elements, duplicate 1st element
     if count > len(elements):
         elements = [elements[0]] * count
-    # Calculate offsets for sequence count
-    offset = (count - 1) / 2
-    x_locs = [i - offset for i in range(count)]
     # Actually draw the sequence elements
+    x_locs = get_x_locs(count)
     for i in range(count):
         loc = (int(P.screen_c[0] + spacing * x_locs[i]), P.screen_c[1])
         blit(elements[i], 5, loc)
