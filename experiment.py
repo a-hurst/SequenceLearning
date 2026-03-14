@@ -143,7 +143,7 @@ class SequenceTask(klibs.Experiment):
             ),
             "cc_button": (
                 "Button pressed!\n"
-                "Please only silently repeat the names of the sequence items."
+                "Please avoid moving as you silently repeat the names of the items."
             )
         }
         self.errs = {}
@@ -160,47 +160,251 @@ class SequenceTask(klibs.Experiment):
         for seq in self.practiced_seqs:
             self.fixation_map[seq] = training_fixations.pop()
 
+    
+    def get_demo_stim(self):
+        # Generate basic sequence stimuli
+        stimset = {
+            'fixation': [],
+            'fix_diamond': [],
+            'fix_star': [],
+            'fix_plus': [],
+            'seq': [],
+            'seq_grey': [],
+        }
+        demo_seq = ['2', '1', '3', 'Right', 'Up', 'Down', 'Left']
+        i = 0
+        for x_loc in [-3, -2, -1, 0, 1, 2, 3]:
+            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
+            stimset['fixation'].append((self.fixations['circle'], loc))
+            stimset['fix_diamond'].append((self.fixations['diamond'], loc))
+            stimset['fix_star'].append((self.fixations['star'], loc))
+            stimset['fix_plus'].append((self.fixations['plus'], loc))
+            stimset['seq'].append((self.icons[demo_seq[i]], loc))
+            stimset['seq_grey'].append((self.icons_grey[demo_seq[i]], loc))
+            i += 1
+        # Generate additional stimuli
+        stimset['seq_progress'] = stimset['seq'][:2] + stimset['seq_grey'][2:]
+        feedback = message("4.234 / No Errors", style='feedback')
+        stimset['feedback'] = [(feedback, P.screen_c)]
+        return stimset
 
-    def training_instructions(self):
+
+    def practice_instructions(self):
+        stim = self.get_demo_stim()
         self.show_demo_text(
-            ("The next phase of the task is a training phase.\n\n"
-             "Now that you've gotten a feel for the sequences, in this phase you will\n"
-             "practice 3 of them extensively to try and improve your performance."),
-            [],
+            ("Now that you have some practice with the controls, let's try some "
+             "full sequences!"),
+            stim['fixation'],
         )
         self.show_demo_text(
-            ("At the end of the study, you will be tested on how quickly and\n"
-             "accurately you can perform these sequences.\n\n"
-             "Please use this phase to try and optimize your performance."),
-            [],
+            ("Each trial starts with a row of shapes, showing you where the sequence "
+             "is about to appear:"),
+            stim['fixation'],
+        )
+        self.show_demo_text(
+            ("When the sequence appears, your job will be to try to quickly perform "
+             "the sequence of\nmovements yourself using the joystick and buttons on "
+             "the game controller."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("As you press each item in the sequence its icon will light up, letting "
+             "you know\nyou made the correct response and showing your progress."),
+            stim['seq_progress'],
+        )
+        self.show_demo_text(
+            ("Once you have responded to all items in the sequence, squeeze both "
+             "triggers at once\non the back of the controller to end the trial."),
+            stim['seq'],
+        )
+        self.show_demo_text(
+            ("At the end of each trial, you will be given feedback on your speed and "
+             "accuracy.\nPlease try to complete the sequences as quickly as you can "
+             "without making mistakes!"),
+            stim['feedback'],
+        )
+
+    def training_instructions(self):
+        stim = self.get_demo_stim()
+        self.show_demo_text(
+            ("Now that you've gotten some practice, in this next phase of the study "
+             "you will train on\n3 sequences repeatedly to see how much you can "
+             "improve your performance!"),
+            stim['fixation'],
+        )
+
+        if P.condition == "MI":
+            self.training_instructions_mi()
+        elif P.condition == "CC":
+            self.training_instructions_cc()
+
+        self.show_demo_text(
+            ("In this training block, each of the three sequences will start with a "
+             "different row of shapes.\nOne sequence will start with diamonds:"),
+            stim['fix_diamond'],
+        )
+        self.show_demo_text(
+            "Another sequence will start with stars:",
+            stim['fix_star'],
+        )
+        self.show_demo_text(
+            "And the third sequence will start with plus signs:",
+            stim['fix_plus'],
+        )
+        self.show_demo_text(
+            ("You can use these shapes to help prepare for each sequence before "
+             "it appears!"),
+            stim['fix_plus'],
+        )
+        self.show_demo_text(
+            ("At the end of the study, you will be tested on how quickly and "
+             "accurately you can\nperform each of the three sequences."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("Because this is a *training* phase, your goal is to practice the "
+             "sequences in order\nto perform as well as you can in the final "
+             "test block."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("Note that this does not necessarily mean practicing as quickly as "
+             "possible: if you think\nit would help more to go slowly and think things "
+             "through, take your time!"),
+            stim['seq_grey'],
+        )
+
+    def training_instructions_mi(self):
+        stim = self.get_demo_stim()
+        self.show_demo_text(
+            ("During this block, instead of performing sequences of movements "
+             "*physically* you will\ninstead be asked to rehearse the sequences "
+             "*mentally* using motor imagery."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("This means that instead of physically pressing buttons or moving the "
+             "joystick, try to\nsimply *imagine* the movements you would need to make "
+             "for each sequence."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("For example, you might visualize how your right thumb would move "
+             "between the 2, 1,\n& 3 buttons, then imagine using your left thumb to "
+             "move the stick right, up, down, & left."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("If it helps, you can try to visualize the icons lighting up and simulate "
+             "how each movement\nwould *feel* as you move through the sequence in "
+             "your mind."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("Please try to avoid actually moving your hands and keep your thumbs "
+             "relaxed\nas you imagine performing the movements."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("Once you have completed the sequence in your mind, please squeeze the "
+             "rear\ntriggers *physically* to end the trial."),
+            stim['seq_grey'],
+        )
+
+    def training_instructions_cc(self):
+        stim = self.get_demo_stim()
+        self.show_demo_text(
+            ("During this block, instead of performing sequences of movements "
+             "*physically* you will\ninstead be asked to rehearse the sequences "
+             "*mentally* by repeating them silently in your head."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("For example, you would practice the sequence below by repeating "
+            "“two, one, three, right,\nup, down, left” to yourself silently, and "
+            "then squeezing the triggers to end the trial."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("Please try and keep your hands still and avoid actual movement during "
+             "mental rehearsal.\nSimply focus on rehearsing the names of the symbols "
+             "in each sequence."),
+            stim['seq_grey'],
         )
 
     def test_instructions(self):
+        stim = self.get_demo_stim()
         self.show_demo_text(
-            ("Now that you've practiced the sequences extensively, you will be\n"
-             "tested on your performance."),
-            [],
+            ("Welcome to the final phase of the experiment! In this section, you "
+             "will be tested on\nhow quickly and accurately you can perform the "
+             "sequences you practiced."),
+            stim['fixation'],
         )
         self.show_demo_text(
-            [("You will be tested on the sequences you trained on as well as other\n"
-              "sequences you have not yet practiced."),
-             ("Please try your best to perform each sequence quickly while\n"
-             "doing your best to avoid mistakes.")],
-            []
+            ("For this phase, please perform the sequences physically using the game "
+             "controller.\nYou will receive feedback on your accuracy and response "
+             "times."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("Note that this block contains 6 different sequences: the 3 you practiced "
+             "during the training\nphase as well as 3 unpracticed sequences. Try your "
+             "best to perform well on all of them!"),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            "In this block, the starting row of shapes is the same for all sequences.",
+            stim['fixation'],
+        )
+        self.show_demo_text(
+            ("At the end of each trial, you will be given feedback on your speed and "
+             "accuracy.\nPlease try to complete the sequences as quickly as you can "
+             "without making mistakes!"),
+            stim['feedback'],
         )
 
 
     def block(self):
 
+        block_msgs = {
+            "practice": (
+                "When you're ready, press any button to begin the practice phase.\n"
+                "Remember to try and avoid mistakes!"
+            ),
+            "training_PP": (
+                "When you're ready, press any button to begin the training phase.\n"
+                "Remember to focus on practicing for the final block!"
+            ),
+            "training_MI": (
+                "When you're ready, press any button to begin the training phase.\n"
+                "Remember to keep your thumbs relaxed as you rehearse the movements "
+                "mentally!"
+            ),
+            "training_CC": (
+                "When you're ready, press any button to begin the training phase.\n"
+                "Remember to keep your thumbs relaxed as you rehearse the item names "
+                "mentally!"
+            ),
+            "test": (
+                "When you're ready, press any button to begin the test phase.\n"
+                "Remember to try and avoid mistakes!"
+            ),
+        }
+
         # Show block instructions
+        if self.block_label == "practice":
+            self.practice_instructions()
         if self.block_label == "training":
             self.training_instructions()
+            block_msg = block_msgs["training_" + P.condition]
         elif self.block_label == "test":
             self.test_instructions()
         
         # Show block start message
-        block_msg = ("In this block, please perform the input sequences\nphysically "
-            "using the game controller.")
+        if self.block_label == "training":
+            block_msg = block_msgs["training_" + P.condition]
+        else:
+            block_msg = block_msgs[self.block_label]
         msg = message(block_msg, align="center")
         msg2 = message("Press any button to start.")
         self.show_feedback(msg, duration=2.0, location=self.block_msg_loc)
@@ -218,7 +422,7 @@ class SequenceTask(klibs.Experiment):
             fixation_shape = self.fixation_map[self.seq_name]
             self.fixation = self.fixations[fixation_shape]
         else:
-            self.trial_type == "PP"
+            self.trial_type = "PP"
             self.fixation = self.fixations['circle']
 
         if self.seq_name == "random":
@@ -461,7 +665,7 @@ class SequenceTask(klibs.Experiment):
 
     def show_demo_text(self, msgs, stim_set, duration=2.0, wait=True, msg_y=None):
         msg_x = int(P.screen_x / 2)
-        msg_y = int(P.screen_y * 0.35) if msg_y is None else msg_y
+        msg_y = int(P.screen_y * 0.25) if msg_y is None else msg_y
         half_space = deg_to_px(0.5)
 
         fill()
