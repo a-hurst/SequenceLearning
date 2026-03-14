@@ -41,6 +41,7 @@ TRANSLUCENT_BLUE = (0, 0, 255, 96)
 NICE_RED = (224, 121, 110)
 NICE_GREEN = (82, 182, 75)
 
+# Colour blind palettes from ggpubfigs
 IBM_PALETTE = [
     (128, 163, 248),
     (137, 122, 235),
@@ -48,6 +49,19 @@ IBM_PALETTE = [
     (238, 127, 49),
     (245, 192, 46),
 ]
+TABLEAU_TEN = [
+    (78, 121, 167),
+    (242, 142, 43),
+    (225, 87, 89),
+    (118, 183, 178),
+    (89, 161, 79),
+    (237, 201, 72),
+    (176, 122, 161),
+    (255, 157, 167),
+    (156, 117, 95),
+    (186, 176, 172),
+]
+
 
 # Define constants for working with gamepad data
 AXIS_MAX = 32768
@@ -117,10 +131,10 @@ class SequenceTask(klibs.Experiment):
             "Up": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=90),
             "Right": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=180),
             "Down": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=270),
-            "1": draw_button(item_w, "1", color=IBM_PALETTE[0]),
-            "2": draw_button(item_w, "2", color=IBM_PALETTE[1]),
-            "3": draw_button(item_w, "3", color=IBM_PALETTE[2]),
-            "4": draw_button(item_w, "4", color=IBM_PALETTE[3]),
+            "1": draw_button(item_w, "1", color=TABLEAU_TEN[1]),
+            "2": draw_button(item_w, "2", color=TABLEAU_TEN[0]),
+            "3": draw_button(item_w, "3", color=TABLEAU_TEN[4]),
+            "4": draw_button(item_w, "4", color=TABLEAU_TEN[2]),
         }
         self.cell = draw_squircle(cell_size, MIDGREY, radius=0.4)
         self.icons_grey = {}
