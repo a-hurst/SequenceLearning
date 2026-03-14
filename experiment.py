@@ -225,14 +225,20 @@ class SequenceTask(klibs.Experiment):
             stim['fixation'],
         )
         self.show_demo_text(
-            ("When the sequence appears, your job will be to try to quickly perform "
-             "the sequence of\nmovements yourself using the joystick and buttons on "
-             "the game controller."),
+            ("When the sequence appears, try to quickly perform the sequence of "
+             "movements\nyourself by using the joystick and buttons on the game "
+             "controller."),
             stim['seq_grey'],
         )
         self.show_demo_text(
-            ("As you press each item in the sequence its icon will light up, letting "
-             "you know\nyou made the correct response and showing your progress."),
+            ("The icons will light up as you make each movement in the sequence, "
+             "letting you know\nyou responded correctly and showing your progress."),
+            stim['seq_progress'],
+        )
+        self.show_demo_text(
+            ("If the next icon does *not* light up when you make a movement, this "
+             "means that your last\ninput was either wrong or didn't register. If this "
+             "happens, simply try the input again."),
             stim['seq_progress'],
         )
         self.show_demo_text(
@@ -290,6 +296,7 @@ class SequenceTask(klibs.Experiment):
              "test block."),
             stim['seq_grey'],
         )
+        # NOTE: Still working on rewording this last one
         self.show_demo_text(
             ("Note that this does not necessarily mean practicing as quickly as "
              "possible: if you think\nit would help more to go slowly and think things "
@@ -301,8 +308,8 @@ class SequenceTask(klibs.Experiment):
         stim = self.get_demo_stim()
         self.show_demo_text(
             ("During this block, instead of performing sequences of movements "
-             "*physically* you will\ninstead be asked to rehearse the sequences "
-             "*mentally* using motor imagery."),
+             "*physically*,\nplease rehearse the sequences *mentally* using motor "
+             "imagery."),
             stim['seq_grey'],
         )
         self.show_demo_text(
@@ -338,8 +345,8 @@ class SequenceTask(klibs.Experiment):
         stim = self.get_demo_stim()
         self.show_demo_text(
             ("During this block, instead of performing sequences of movements "
-             "*physically* you will\ninstead be asked to rehearse the sequences "
-             "*mentally* by repeating them silently in your head."),
+             "*physically*,\nplease rehearse the sequences *mentally* by repeating "
+             "them silently in your head."),
             stim['seq_grey'],
         )
         self.show_demo_text(
@@ -350,8 +357,13 @@ class SequenceTask(klibs.Experiment):
         )
         self.show_demo_text(
             ("Please try and keep your hands still and avoid actual movement during "
-             "mental rehearsal.\nSimply focus on rehearsing the names of the symbols "
-             "in each sequence."),
+             "mental rehearsal.\nSimply focus on trying to memorize each sequence by "
+             "rehearsing the names of its items."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("For the sake of the experiment, please only rehearse each sequence once "
+             "per trial!"),
             stim['seq_grey'],
         )
 
@@ -364,7 +376,7 @@ class SequenceTask(klibs.Experiment):
             [], msg_y = int(P.screen_y * 0.4)
         )
         self.show_demo_text(
-            ("For each unique starting shape (star, diamond, or plus), you will be "
+            ("For each unique starting shape (diamond, star, or plus), you will be "
              "asked to try and\nremember the corresponding sequence to the best of "
              "your memory."),
             stim['recall_cells'],
@@ -413,7 +425,7 @@ class SequenceTask(klibs.Experiment):
         )
         self.show_demo_text(
             ("Note that this block contains 6 different sequences: the 3 you practiced "
-             "during the training\nphase as well as 3 unpracticed sequences. Try your "
+             "during the training\nphase, and 3 unpracticed sequences. Try your "
              "best to perform well on all of them!"),
             stim['seq_grey'],
         )
