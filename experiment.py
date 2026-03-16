@@ -179,6 +179,8 @@ class SequenceTask(klibs.Experiment):
         for seq in self.practiced_seqs:
             self.fixation_map[seq] = training_fixations.pop()
 
+        self.task_tutorial()
+
     
     def get_demo_stim(self):
         # Generate basic sequence stimuli
@@ -189,7 +191,9 @@ class SequenceTask(klibs.Experiment):
             'fix_plus': [],
             'seq': [],
             'seq_grey': [],
-            'recall_cells': []
+            'recall_cells': [],
+            'arrows': [],
+            'numbers': [],
         }
         demo_seq = ['2', '1', '3', 'Right', 'Up', 'Down', 'Left']
         i = 0
@@ -203,6 +207,15 @@ class SequenceTask(klibs.Experiment):
             stimset['seq_grey'].append((self.icons_grey[demo_seq[i]], loc))
             stimset['recall_cells'].append((self.cell, loc))
             i += 1
+        # Generate stimuli for task intro
+        arrows = ['Up', 'Down', 'Left', 'Right']
+        numbers = ['1', '2', '3', '4']
+        i = 0
+        for x_loc in get_x_locs(len(arrows)):
+            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
+            stimset['arrows'].append((self.icons[arrows[i]], loc))
+            stimset['numbers'].append((self.icons[numbers[i]], loc))
+            i += 1
         # Generate additional stimuli
         stimset['seq_progress'] = stimset['seq'][:2] + stimset['seq_grey'][2:]
         stimset['seq_recall'] = stimset['seq'][:3]
@@ -210,6 +223,36 @@ class SequenceTask(klibs.Experiment):
         feedback = message("4.234 / No Errors", style='feedback')
         stimset['feedback'] = [(feedback, P.screen_c)]
         return stimset
+
+
+    def task_tutorial(self):
+        stim = self.get_demo_stim()
+        self.show_demo_text(
+            "Welcome to the experiment! This tutorial will help explain the task.",
+            stim['fixation'],
+        )
+        self.show_demo_text(
+            ("On each trial of the experiment, you will be shown a sequence of "
+             "arrows and numbers."),
+            stim['seq'],
+        )
+        self.show_demo_text(
+            ["Each sequence item corresponds to an input on the game controller.",
+            "Arrows (Up, Down, Left, Right) represent movements with the left stick:"],
+            stim['arrows'],
+        )
+        self.show_demo_text(
+            ("Numbers (1, 2, 3, 4) represent button presses on the right side of "
+             "the controller:"),
+            stim['numbers'],
+        )
+        self.show_demo_text(
+            ("Each sequence is made of numbers (button presses) and arrows (stick "
+             "movements).\nYour job will be to repeat these sequences yourself using "
+             "the game controller."),
+            stim['seq'],
+        )
+        self.input_demo()
 
 
     def practice_instructions(self):
@@ -693,6 +736,50 @@ class SequenceTask(klibs.Experiment):
 
         if self.gamepad:
             self.gamepad.close()
+
+
+    def input_demo(self):
+        # Pre-render the instructions and continue message
+        instr1 = message(
+            "To get a feel for the controls, try some inputs yourself!"
+        )
+        instr2 = message(
+            "When you press a button or move the stick, its icon will appear below:"
+        )
+        next_msg = message(
+            "When you're ready to continue, squeeze both rear triggers at once."
+        )
+        instr1_loc = (P.screen_c[0], int(P.screen_y * 0.25))
+        instr2_loc = (P.screen_c[0], instr1_loc[1] + int(instr1.height * 1.5))
+        next_loc = (P.screen_c[0], int(P.screen_y * 0.75))
+
+        # Enter input demo loop until each input pressed at least once
+        unique = set()
+        resp_icon = None
+        last_resp = 0
+        done = False
+        while not done:
+
+            fill()
+            blit(instr1, 8, instr1_loc)
+            blit(instr2, 8, instr2_loc)
+            since_resp = sdl2.SDL_GetTicks() - last_resp
+            if last_resp != 0 and since_resp < 300:
+                blit(resp_icon, 5, P.screen_c)
+            if len(unique) == len(self.icons):
+                blit(next_msg, 5, next_loc)
+            flip()
+
+            response, timestamp = self.get_sequence_input()
+            if not response:
+                continue
+            else:
+                last_resp = timestamp
+                if response == "triggers" and len(unique) == len(self.icons):
+                    done = True
+                else:
+                    resp_icon = self.icons[response]
+                    unique.add(response)
 
 
     def run_seqence_recall(self):
