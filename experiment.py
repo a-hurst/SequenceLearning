@@ -2,6 +2,7 @@
 
 __author__ = "Austin Hurst"
 
+import itertools
 from math import sqrt
 from random import choice, shuffle
 
@@ -194,6 +195,7 @@ class SequenceTask(klibs.Experiment):
             'recall_cells': [],
             'arrows': [],
             'numbers': [],
+            'pair': [],
         }
         demo_seq = ['2', '1', '3', 'Right', 'Up', 'Down', 'Left']
         i = 0
@@ -216,10 +218,17 @@ class SequenceTask(klibs.Experiment):
             stimset['arrows'].append((self.icons[arrows[i]], loc))
             stimset['numbers'].append((self.icons[numbers[i]], loc))
             i += 1
+        pair = ['3', 'Down']
+        i = 0
+        for x_loc in get_x_locs(2):
+            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
+            stimset['pair'].append((self.icons[pair[i]], loc))
+            i += 1
         # Generate additional stimuli
         stimset['seq_progress'] = stimset['seq'][:2] + stimset['seq_grey'][2:]
         stimset['seq_recall'] = stimset['seq'][:3]
         stimset['seq_recall2'] = stimset['seq'][:2]
+        stimset['pair_err'] = [(message("XXXX", style="wrong"), P.screen_c)]
         feedback = message("4.234 / No Errors", style='feedback')
         stimset['feedback'] = [(feedback, P.screen_c)]
         return stimset
@@ -253,6 +262,26 @@ class SequenceTask(klibs.Experiment):
             stim['seq'],
         )
         self.input_demo()
+        self.show_demo_text(
+            ("Now that you have a feel for the basics, let's try practicing some "
+             "pairs of items."),
+            stim['pair'],
+        )
+        self.show_demo_text(
+            ("Don't worry about going quickly, just focus on making the right "
+             "movements!"),
+            stim['pair'],
+        )
+        self.show_demo_text(
+            ["If you make a mistake, you will get feedback to let you know.",
+             "If this happens, just take a deep breath and try again!"],
+            stim['pair_err'],
+        )
+        self.show_demo_text(
+            "When you're ready, press any button to begin.", [],
+            duration=1.0, msg_y=int(P.screen_y * 0.4)
+        )
+        self.pairs_practice()
 
 
     def practice_instructions(self):
@@ -780,6 +809,50 @@ class SequenceTask(klibs.Experiment):
                 else:
                     resp_icon = self.icons[response]
                     unique.add(response)
+
+
+    def pairs_practice(self):
+        # Get all possible button pairs
+        pairs = list(itertools.permutations(self.icons.keys(), r=2))
+        shuffle(pairs)
+
+        # Iterate through pairs until all completed successfully
+        pairs_err = message("XXXX", style="wrong")
+        while len(pairs):
+            progress = 0
+            seq = pairs.pop()
+            stim = [self.icons_grey[e] for e in seq]
+
+            fill()
+            draw_sequence(stim, self.item_offset)
+            flip()
+            stim_onset = sdl2.SDL_GetTicks()
+
+            while progress < 2:
+                target = seq[progress]
+                response, timestamp = self.get_sequence_input()
+                if not response:
+                    continue
+                elif response == target:
+                    progress += 1
+                    if progress == 1:
+                        stim[0] = self.icons[seq[0]]
+                        fill()
+                        draw_sequence(stim, self.item_offset)
+                        flip()
+                    elif progress == 2:
+                        stim[1] = self.icons[seq[1]]
+                        fill()
+                        draw_sequence(stim, self.item_offset)
+                        flip()
+                        smart_sleep(250)
+                        fill()
+                        flip()
+                        smart_sleep(250)
+                else:
+                    self.show_feedback(pairs_err, duration=1.0)
+                    pairs.append(seq)
+                    break
 
 
     def run_seqence_recall(self):
