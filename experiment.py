@@ -180,58 +180,11 @@ class SequenceTask(klibs.Experiment):
         for seq in self.practiced_seqs:
             self.fixation_map[seq] = training_fixations.pop()
 
-        self.task_tutorial()
-
-    
-    def get_demo_stim(self):
-        # Generate basic sequence stimuli
-        stimset = {
-            'fixation': [],
-            'fix_diamond': [],
-            'fix_star': [],
-            'fix_plus': [],
-            'seq': [],
-            'seq_grey': [],
-            'recall_cells': [],
-            'arrows': [],
-            'numbers': [],
-            'pair': [],
-        }
-        demo_seq = ['2', '1', '3', 'Right', 'Up', 'Down', 'Left']
-        i = 0
-        for x_loc in get_x_locs(len(demo_seq)):
-            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
-            stimset['fixation'].append((self.fixations['circle'], loc))
-            stimset['fix_diamond'].append((self.fixations['diamond'], loc))
-            stimset['fix_star'].append((self.fixations['star'], loc))
-            stimset['fix_plus'].append((self.fixations['plus'], loc))
-            stimset['seq'].append((self.icons[demo_seq[i]], loc))
-            stimset['seq_grey'].append((self.icons_grey[demo_seq[i]], loc))
-            stimset['recall_cells'].append((self.cell, loc))
-            i += 1
-        # Generate stimuli for task intro
-        arrows = ['Up', 'Down', 'Left', 'Right']
-        numbers = ['1', '2', '3', '4']
-        i = 0
-        for x_loc in get_x_locs(len(arrows)):
-            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
-            stimset['arrows'].append((self.icons[arrows[i]], loc))
-            stimset['numbers'].append((self.icons[numbers[i]], loc))
-            i += 1
-        pair = ['3', 'Down']
-        i = 0
-        for x_loc in get_x_locs(2):
-            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
-            stimset['pair'].append((self.icons[pair[i]], loc))
-            i += 1
-        # Generate additional stimuli
-        stimset['seq_progress'] = stimset['seq'][:2] + stimset['seq_grey'][2:]
-        stimset['seq_recall'] = stimset['seq'][:3]
-        stimset['seq_recall2'] = stimset['seq'][:2]
-        stimset['pair_err'] = [(message("XXXX", style="wrong"), P.screen_c)]
-        feedback = message("4.234 / No Errors", style='feedback')
-        stimset['feedback'] = [(feedback, P.screen_c)]
-        return stimset
+        # Run task tutorial (can skip by pressing Esc)
+        try:
+            self.task_tutorial()
+        except SkipInstructions:
+            pass
 
 
     def task_tutorial(self):
@@ -545,13 +498,16 @@ class SequenceTask(klibs.Experiment):
             self.run_seqence_recall()
 
         # Show block instructions
-        if self.block_label == "practice":
-            self.practice_instructions()
-        if self.block_label == "training":
-            self.training_instructions()
-            block_msg = block_msgs["training_" + P.condition]
-        elif self.block_label == "test":
-            self.test_instructions()
+        try:
+            if self.block_label == "practice":
+                self.practice_instructions()
+            if self.block_label == "training":
+                block_msg = block_msgs["training_" + P.condition]
+                self.training_instructions()
+            elif self.block_label == "test":
+                self.test_instructions()
+        except SkipInstructions:
+            pass
         
         # Show block start message
         if self.block_label == "training":
@@ -767,6 +723,57 @@ class SequenceTask(klibs.Experiment):
             self.gamepad.close()
 
 
+    def get_demo_stim(self):
+        # Generate basic sequence stimuli
+        stimset = {
+            'fixation': [],
+            'fix_diamond': [],
+            'fix_star': [],
+            'fix_plus': [],
+            'seq': [],
+            'seq_grey': [],
+            'recall_cells': [],
+            'arrows': [],
+            'numbers': [],
+            'pair': [],
+        }
+        demo_seq = ['2', '1', '3', 'Right', 'Up', 'Down', 'Left']
+        i = 0
+        for x_loc in get_x_locs(len(demo_seq)):
+            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
+            stimset['fixation'].append((self.fixations['circle'], loc))
+            stimset['fix_diamond'].append((self.fixations['diamond'], loc))
+            stimset['fix_star'].append((self.fixations['star'], loc))
+            stimset['fix_plus'].append((self.fixations['plus'], loc))
+            stimset['seq'].append((self.icons[demo_seq[i]], loc))
+            stimset['seq_grey'].append((self.icons_grey[demo_seq[i]], loc))
+            stimset['recall_cells'].append((self.cell, loc))
+            i += 1
+        # Generate stimuli for task intro
+        arrows = ['Up', 'Down', 'Left', 'Right']
+        numbers = ['1', '2', '3', '4']
+        i = 0
+        for x_loc in get_x_locs(len(arrows)):
+            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
+            stimset['arrows'].append((self.icons[arrows[i]], loc))
+            stimset['numbers'].append((self.icons[numbers[i]], loc))
+            i += 1
+        pair = ['3', 'Down']
+        i = 0
+        for x_loc in get_x_locs(2):
+            loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
+            stimset['pair'].append((self.icons[pair[i]], loc))
+            i += 1
+        # Generate additional stimuli
+        stimset['seq_progress'] = stimset['seq'][:2] + stimset['seq_grey'][2:]
+        stimset['seq_recall'] = stimset['seq'][:3]
+        stimset['seq_recall2'] = stimset['seq'][:2]
+        stimset['pair_err'] = [(message("XXXX", style="wrong"), P.screen_c)]
+        feedback = message("4.234 / No Errors", style='feedback')
+        stimset['feedback'] = [(feedback, P.screen_c)]
+        return stimset
+
+
     def input_demo(self):
         # Pre-render the instructions and continue message
         instr1 = message(
@@ -865,7 +872,10 @@ class SequenceTask(klibs.Experiment):
             seq_order = list(self.fixation_map.keys())
 
         # Run through instuctions and wait for input
-        self.recall_instructions()
+        try:
+            self.recall_instructions()
+        except SkipInstructions:
+            pass
         msg = message("When you're ready, press any key to start.")
         self.show_feedback(msg, duration=1.0)
         any_key()
@@ -900,6 +910,8 @@ class SequenceTask(klibs.Experiment):
         self.show_feedback(msg, duration=1.0)
         button = False
         while not button:
+            if self.gamepad:
+                self.gamepad.update()
             q = pump()
             ui_request(queue=q)
             button = len(get_buttons(q))
@@ -1025,7 +1037,7 @@ class SequenceTask(klibs.Experiment):
         else:
             smart_sleep(duration * 1000)
         if wait:
-            wait_for_input(self.gamepad)
+            wait_for_input(self.gamepad, demo=True)
 
 
     def get_stick_movement(self, from_center=True):
@@ -1053,6 +1065,11 @@ class SequenceTask(klibs.Experiment):
 
         return (raw_lt / TRIGGER_MAX, raw_rt / TRIGGER_MAX)
 
+
+
+class SkipInstructions(Exception):
+    # Dummy exception for making it easy to skip instructions
+    pass
 
 
 def joystick_scaled(x, y, deadzone = 0.2):
@@ -1099,7 +1116,7 @@ def get_stick_direction(gamepad, left=True, threshold = 0.8):
     return 0
 
     
-def wait_for_input(gamepad=None):
+def wait_for_input(gamepad=None, demo=False):
     # Waits until mouse button, key, or controller button pressed 
     valid_input = [
         sdl2.SDL_KEYDOWN,
@@ -1116,8 +1133,12 @@ def wait_for_input(gamepad=None):
         for event in q:
             if event.type in valid_input:
                 keydown = event.type == sdl2.SDL_KEYDOWN
-                if keydown and event.key.repeat:
-                    continue
+                if keydown:
+                    if event.key.repeat:
+                        continue
+                    elif demo and event.key.keysym.sym == sdl2.SDLK_ESCAPE:
+                        if P.development_mode:
+                            raise SkipInstructions
                 user_input = True
                 break
 
