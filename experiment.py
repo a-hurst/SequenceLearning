@@ -810,8 +810,9 @@ class SequenceTask(klibs.Experiment):
                 continue
             else:
                 last_resp = timestamp
-                if response == "triggers" and len(unique) == len(self.icons):
-                    done = True
+                if response == "triggers":
+                    if len(unique) == len(self.icons):
+                        done = True
                 else:
                     resp_icon = self.icons[response]
                     unique.add(response)
