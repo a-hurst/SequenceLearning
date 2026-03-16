@@ -1110,8 +1110,12 @@ def get_stick_direction(gamepad, left=True, threshold = 0.8):
     x, y = get_stick_position(gamepad, left=left)
     amplitude = sqrt(x ** 2 + y ** 2)
     if amplitude > threshold:
-        angle = angle_between((0, 0), (x, y), rotation=-112.5, clockwise=True)
-        return int(angle / 45.0) + 1
+        # Split into 8 quadrants with up/down/left/right having 70° ranges 
+        # with 20° buffer zones in between
+        angle = angle_between((0, 0), (x, y), rotation=-125, clockwise=True)
+        zone = int(angle / 90.0)
+        offset = 1 if (angle % 90 > 70) else 0
+        return (zone * 2) + offset + 1
     return 0
 
     
