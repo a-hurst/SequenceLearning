@@ -1,6 +1,8 @@
 # SequenceLearning
 
-SequenceLearning is a paradigm for studying how we learn complex bimanual sequences. The purpose of the task is to measure how quickly people can reproduce different repeated sequences of gamepad inputs before and after training.
+SequenceLearning is a paradigm for studying how we learn complex bimanual sequences. The purpose of the task is to measure how quickly people can reproduce different repeated sequences of movements before and after training.
+
+![SequenceLearning](task.gif)
 
 ## Requirements
 
