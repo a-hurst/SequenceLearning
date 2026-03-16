@@ -564,8 +564,7 @@ class SequenceTask(klibs.Experiment):
 
         # Need to decide circumstances resulting in a trial error
         #   - Timeout seems reasonable, but needs to be long to account for slow MI
-        #   - Pre-sequence response?
-        # For CC/MI, start progress at 7 with all elements lit?
+        #   - Too soon error if MI/CC are unrealistically fast? (under 1 sec)?
 
         # Initialize trial variables
         seq = self.sequence
