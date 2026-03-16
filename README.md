@@ -8,7 +8,7 @@ SequenceLearning is a paradigm for studying how we learn complex bimanual sequen
 
 SequenceLearning is programmed in Python 3.11 using the [KLibs framework](https://github.com/a-hurst/klibs). It has been developed and tested on recent versions of macOS and Linux, but should also work without issue on Windows systems.
 
-To use the task with a gamepad (as intended), you will also need a USB or wireless controller that is supported by your computer. The task has been tested with Microsoft Xbox 360 wired controllers as well as Sony DualShock 4 controllers, but most gamepads that provide a joystick, triggers, and face buttons should work. If no gamepad is available, mouse movement/clicking will be used in place of the joystick/triggers (respectively).
+To use the task with a gamepad (as intended), you will also need a USB or wireless controller that is supported by your computer. The task has been tested with Microsoft Xbox 360 wired controllers as well as Sony DualShock 4 controllers, but most gamepads that provide a joystick, triggers, and face buttons should work. If no gamepad is available, the WASD and IJKL keys will be used in place of the joystick movements and button presses (respectively) and the spacebar replaces the triggers.
 
 
 ## Getting Started
