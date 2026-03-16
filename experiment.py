@@ -603,7 +603,7 @@ class SequenceTask(klibs.Experiment):
                 prev_time = start
             
             # Determine the next input in the sequence
-            if self.trial_type == "PP" and progress < 7:
+            if self.trial_type == "PP" and progress < len(seq):
                 target = seq[progress]
             else:
                 target = "triggers"
