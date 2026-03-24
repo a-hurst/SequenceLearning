@@ -149,7 +149,10 @@ class SequenceTask(klibs.Experiment):
             "too_soon": (
                 "Too soon!\nPlease wait for the sequence to appear before responding."
             ),
-            "too_slow": "Too slow!\nPlease try to respond faster.",
+            "too_fast": (
+                "Too fast!\nPlease practice the full sequence before responding."
+            ),
+            "too_slow": "Too slow!\nPlease try to complete the sequence faster.",
             "start_triggers": (
                 "Please fully release the triggers before the start of each trial."
             ),
@@ -648,6 +651,17 @@ class SequenceTask(klibs.Experiment):
                         if err != "NA":
                             done = True
                             break
+                else:
+                    # If trial timed out, stop and show error
+                    if self.evm.after("timeout"):
+                        err = "too_slow"
+                        done = True
+                        break
+
+        # If MI/CC training trial and response is implausibly fast, show error
+        if self.trial_type != "PP" and err == "NA":
+            if (timestamp - start) < 1500:
+                err = "too_fast"
 
         # Show RT feedback for 1.7 seconds, or error if trial timed out
         init_rt = responses[0]['rt'] if len(responses) else -1
