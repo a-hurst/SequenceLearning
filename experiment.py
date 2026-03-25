@@ -114,10 +114,10 @@ class SequenceTask(klibs.Experiment):
             "dpdown": "Down",
             "dpleft": "Left",
             "dpright": "Right",
-            "y": "1",
-            "x": "2",
-            "a": "3",
-            "b": "4",
+            "x": "1",
+            "y": "2",
+            "b": "3",
+            "a": "4",
         }
 
         # Generate task stimuli
@@ -132,10 +132,10 @@ class SequenceTask(klibs.Experiment):
             "Up": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=90),
             "Right": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=180),
             "Down": draw_arrow(item_w, item_w, arrow_t, WHITE, angle=270),
-            "1": draw_button(item_w, "1", color=TABLEAU_TEN[1]),
-            "2": draw_button(item_w, "2", color=TABLEAU_TEN[0]),
-            "3": draw_button(item_w, "3", color=TABLEAU_TEN[4]),
-            "4": draw_button(item_w, "4", color=TABLEAU_TEN[2]),
+            "1": draw_button(item_w, "1", color=TABLEAU_TEN[0]),
+            "2": draw_button(item_w, "2", color=TABLEAU_TEN[1]),
+            "3": draw_button(item_w, "3", color=TABLEAU_TEN[2]),
+            "4": draw_button(item_w, "4", color=TABLEAU_TEN[4]),
         }
         self.cell = draw_squircle(cell_size, MIDGREY, radius=0.4)
         self.icons_grey = {}
@@ -210,6 +210,11 @@ class SequenceTask(klibs.Experiment):
             ("Numbers (1, 2, 3, 4) represent button presses on the right side of "
              "the controller:"),
             stim['numbers'],
+        )
+        self.show_demo_text(
+            ("The numbers are mapped to buttons in clockwise order, as "
+             "illustrated below:"),
+            stim['buttons'],
         )
         self.show_demo_text(
             ("Each sequence is made of numbers (button presses) and arrows (stick "
@@ -781,6 +786,13 @@ class SequenceTask(klibs.Experiment):
             loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
             stimset['pair'].append((self.icons[pair[i]], loc))
             i += 1
+        bdist = self.icons["1"].shape[0]
+        stimset['buttons'] = [
+            (self.icons["1"], (P.screen_c[0] - bdist, P.screen_c[1])),
+            (self.icons["2"], (P.screen_c[0], P.screen_c[1] - bdist)),
+            (self.icons["3"], (P.screen_c[0] + bdist, P.screen_c[1])),
+            (self.icons["4"], (P.screen_c[0], P.screen_c[1] + bdist)),
+        ]
         # Generate additional stimuli
         stimset['seq_progress'] = stimset['seq'][:2] + stimset['seq_grey'][2:]
         stimset['seq_recall'] = stimset['seq'][:3]

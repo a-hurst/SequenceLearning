@@ -66,11 +66,11 @@ append_hostname = False
 # PROJECT-SPECIFIC VARS
 #########################################
 sequences = {
-    'seq1': ["1", "Down", "2", "4", "Down", "Right", "Up"],
-    'seq2': ["4", "Right", "1", "4", "Down", "Left", "Up"],
-    'seq3': ["Down", "Left", "1", "3", "Up", "Left", "4"],
-    'seq4': ["Left", "Down", "1", "2", "Right", "Down", "3"],
-    'seq5': ["Right", "Up", "3", "1", "Left", "Down", "2"],
-    'seq6': ["Up", "Left", "4", "3", "Right", "Up", "1"],
+    'seq1': ["2", "Down", "1", "3", "Down", "Right", "Up"],
+    'seq2': ["3", "Right", "2", "3", "Down", "Left", "Up"],
+    'seq3': ["Down", "Left", "2", "4", "Up", "Left", "3"],
+    'seq4': ["Left", "Down", "2", "1", "Right", "Down", "4"],
+    'seq5': ["Right", "Up", "4", "2", "Left", "Down", "1"],
+    'seq6': ["Up", "Left", "3", "4", "Right", "Up", "2"],
 }
 
