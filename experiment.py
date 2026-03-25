@@ -297,7 +297,11 @@ class SequenceTask(klibs.Experiment):
 
         self.show_demo_text(
             ("In this training block, each of the three sequences will start with a "
-             "different row of shapes.\nOne sequence will start with diamonds:"),
+             "different row of shapes."),
+            stim['fixation'],
+        )
+        self.show_demo_text(
+            "One sequence will start with diamonds:",
             stim['fix_diamond'],
         )
         self.show_demo_text(
@@ -324,11 +328,15 @@ class SequenceTask(klibs.Experiment):
              "test block."),
             stim['seq_grey'],
         )
-        # NOTE: Still working on rewording this last one
         self.show_demo_text(
-            ("Note that this does not necessarily mean practicing as quickly as "
-             "possible: if you think\nit would help more to go slowly and think things "
-             "through, take your time!"),
+            ("In other words, we want you to focus on improving your *future* sequence "
+             "performance\ninstead of trying to practice as quickly as you can "
+             "right now."),
+            stim['seq_grey'],
+        )
+        self.show_demo_text(
+            ("If you think going slowly through the sequence items would help more\n"
+             "in the long run, please take your time!"),
             stim['seq_grey'],
         )
 
@@ -417,8 +425,8 @@ class SequenceTask(klibs.Experiment):
             msg_y = int(P.screen_y * 0.2)
         )
         self.show_demo_text(
-            ("This section is not timed, so don't worry about answering quickly! Just "
-             "do\nyour best to remember the items for each sequence."),
+            ("This section is not timed, so don't worry about answering quickly!\nJust "
+             "do your best to remember the items for each sequence."),
             stim['recall_cells'] + stim['seq_recall'],
             msg_y = int(P.screen_y * 0.2)
         )
@@ -564,10 +572,6 @@ class SequenceTask(klibs.Experiment):
 
 
     def trial(self):
-
-        # Need to decide circumstances resulting in a trial error
-        #   - Timeout seems reasonable, but needs to be long to account for slow MI
-        #   - Too soon error if MI/CC are unrealistically fast? (under 1 sec)?
 
         # Initialize trial variables
         seq = self.sequence
