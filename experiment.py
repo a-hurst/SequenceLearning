@@ -20,9 +20,7 @@ from klibs.KLUtilities import line_segment_len as linear_dist
 from klibs.KLTime import CountDown
 from klibs.KLText import add_text_style, TextStyle
 from klibs.KLCommunication import message
-from klibs.KLUserInterface import (
-    any_key, mouse_pos, ui_request, hide_cursor, smart_sleep,
-)
+from klibs.KLUserInterface import any_key, mouse_pos, ui_request, hide_cursor
 from sdl2.ext import get_key_state
 
 from gamepad import gamepad_init, button_pressed, ControllerButton, VirtualButton
@@ -224,8 +222,19 @@ class SequenceTask(klibs.Experiment):
         )
         self.input_demo()
         self.show_demo_text(
+            ["Input demo complete!",
+             "Press any button to start the next phase of instructions."],
+            [], msg_y = int(P.screen_y * 0.45)
+        )
+        self.show_demo_text(
             ("Now that you have a feel for the basics, let's try practicing some "
-             "pairs of items."),
+             "simple sequences."),
+            stim['pair'],
+        )
+        self.show_demo_text(
+            ("Each sequence will be a pair of items. Simply respond to each item in "
+             "order\n(not at the same time!) and then squeeze the rear triggers to "
+             "continue."),
             stim['pair'],
         )
         self.show_demo_text(
@@ -234,7 +243,7 @@ class SequenceTask(klibs.Experiment):
             stim['pair'],
         )
         self.show_demo_text(
-            ["If you make a mistake, you will get feedback to let you know.",
+            ["If you make a mistake, you will be shown feedback to let you know.",
              "If this happens, just take a deep breath and try again!"],
             stim['pair_err'],
         )
@@ -243,6 +252,11 @@ class SequenceTask(klibs.Experiment):
             duration=1.0, msg_y=int(P.screen_y * 0.4)
         )
         self.pairs_practice()
+        self.show_demo_text(
+            ["Pair practice complete!",
+             "Press any button to start the next phase of instructions."],
+            [], msg_y = int(P.screen_y * 0.45)
+        )
 
 
     def practice_instructions(self):
@@ -570,8 +584,7 @@ class SequenceTask(klibs.Experiment):
 
         # Ensure triggers released prior to trial start
         while True:
-            lt, rt = self.get_triggers()
-            if lt < 0.5 and rt < 0.5:
+            if self.triggers_released():
                 break
             self.show_feedback(self.errs["start_triggers"], duration=0.5)
 
@@ -865,8 +878,8 @@ class SequenceTask(klibs.Experiment):
             flip()
             stim_onset = sdl2.SDL_GetTicks()
 
-            while progress < 2:
-                target = seq[progress]
+            while progress < 3:
+                target = seq[progress] if progress < 2 else "triggers"
                 response, timestamp = self.get_sequence_input()
                 if not response:
                     continue
@@ -882,10 +895,17 @@ class SequenceTask(klibs.Experiment):
                         fill()
                         draw_sequence(stim, self.item_offset)
                         flip()
-                        smart_sleep(250)
+                    else:
                         fill()
                         flip()
-                        smart_sleep(250)
+                        wait_msec(500, self.gamepad)
+                        # Make sure triggers released before next pair
+                        while True:
+                            if self.triggers_released():
+                                break
+                            self.show_feedback(
+                                self.errs["start_triggers"], duration=0.5
+                            )
                 else:
                     self.show_feedback(pairs_err, duration=1.0)
                     pairs.append(seq)
@@ -1043,6 +1063,13 @@ class SequenceTask(klibs.Experiment):
             flip()
 
 
+    def triggers_released(self):
+        if self.gamepad:
+            self.gamepad.update()
+        lt, rt = self.get_triggers()
+        return lt < 0.5 and rt < 0.5
+
+
     def show_demo_text(self, msgs, stim_set, duration=2.0, wait=True, msg_y=None):
         msg_x = int(P.screen_x / 2)
         msg_y = int(P.screen_y * 0.25) if msg_y is None else msg_y
@@ -1063,9 +1090,9 @@ class SequenceTask(klibs.Experiment):
                 blit(stim, 5, loc)
         flip()
         if P.development_mode and wait:
-            smart_sleep(500)
+            wait_msec(500)
         else:
-            smart_sleep(duration * 1000)
+            wait_msec(duration * 1000)
         if wait:
             wait_for_input(self.gamepad, demo=True)
 
@@ -1148,6 +1175,14 @@ def get_stick_direction(gamepad, left=True, threshold = 0.8):
         offset = 1 if (angle % 90 > 70) else 0
         return (zone * 2) + offset + 1
     return 0
+
+
+def wait_msec(duration, gamepad=None):
+    start = sdl2.SDL_GetTicks()
+    while (sdl2.SDL_GetTicks() - start) < duration:
+        if gamepad:
+            gamepad.update()
+        ui_request()
 
     
 def wait_for_input(gamepad=None, demo=False):
