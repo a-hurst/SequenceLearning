@@ -358,6 +358,11 @@ class SequenceTask(klibs.Experiment):
              "in the long run, please take your time!"),
             stim['seq_grey'],
         )
+        self.show_demo_text(
+            ("As you practice the sequences, you will be regularly updated on\n"
+             "your progress and have the chance to take breaks."),
+            stim['seq_grey'],
+        )
 
     def training_instructions_mi(self):
         stim = self.get_demo_stim()
@@ -741,6 +746,25 @@ class SequenceTask(klibs.Experiment):
             "total_errs": total_errs,
             "err": err,
         }
+
+
+    def trial_clean_up(self):
+        b1 = "{0}% complete!  ({1} / {2} trials)"
+        b2 = "Take a break if you need one, then press any button to continue."
+        # Show break messages at regular intervals
+        break_interval = 15
+        if P.trial_number % break_interval == 0:
+            if P.trial_number == P.trials_per_block or self.block_label == "practice":
+                return
+            pct = int((P.trial_number / P.trials_per_block) * 100)
+            self.show_demo_text(
+                [b1.format(pct, P.trial_number, P.trials_per_block), b2], [],
+                msg_y = int(P.screen_y * 0.45)
+            )
+            # Blank screen before returning to task to give time for button release
+            fill()
+            flip()
+            wait_msec(500, self.gamepad)
 
 
     def clean_up(self):
