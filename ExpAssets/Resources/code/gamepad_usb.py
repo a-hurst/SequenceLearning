@@ -102,6 +102,7 @@ class Virtual360Controller(GameController):
         for e in events:
             b = BUTTON_MAP[e.name]
             sdl2.SDL_JoystickSetVirtualButton(self._stick, b, e.state)
+            sdl2.SDL_JoystickUpdate()
         data = self.usb_pad.get_data()
         for d in data:
             for axis in ALL_AXES:
@@ -112,3 +113,4 @@ class Virtual360Controller(GameController):
                 if axis in [AXIS_LT, AXIS_RT]:
                     value = int(value * 257) - 32768
                 sdl2.SDL_JoystickSetVirtualAxis(self._stick, a, value)
+            sdl2.SDL_JoystickUpdate()
