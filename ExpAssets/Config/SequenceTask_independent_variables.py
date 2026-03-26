@@ -18,6 +18,6 @@ test_factors = FactorSet({
 
 structure = [
     Block(test_factors, label='practice', trials=18),
-    Block(exp_factors, label='training', trials=90),
+    Block(exp_factors, label='training', trials=150),
     Block(test_factors, label='test', trials=60),
 ]
