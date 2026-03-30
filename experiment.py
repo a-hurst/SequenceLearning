@@ -721,7 +721,7 @@ class SequenceTask(klibs.Experiment):
             # Get total error count
             if self.trial_type != "PP":
                 err_str = "? Errors"
-            if total_errs < 2:
+            elif total_errs < 2:
                 err_str = "No Errors" if total_errs == 0 else "1 Error"
             else:
                 err_str = "{0} Errors".format(total_errs)
