@@ -601,7 +601,7 @@ class SequenceTask(klibs.Experiment):
             self.sequence = P.sequences[self.seq_name]
 
         # Add timecourse of events to EventManager
-        self.evm.add_event('sequence_on', onset=800)
+        self.evm.add_event('sequence_on', onset=1000)
         self.evm.add_event('timeout', onset=15000, after='sequence_on')
 
         # Reset input state
