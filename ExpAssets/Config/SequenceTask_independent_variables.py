@@ -12,12 +12,15 @@ training_sequences = random.sample(sequences, 3)
 exp_factors = FactorSet({
     'seq_name': training_sequences,
 })
+prac_factors = FactorSet({
+    'seq_name': ['random']
+})
 test_factors = FactorSet({
     'seq_name': sequences
 })
 
 structure = [
-    Block(test_factors, label='practice', trials=18),
+    Block(prac_factors, label='practice', trials=30),
     Block(exp_factors, label='training', trials=150),
     Block(test_factors, label='test', trials=60),
 ]
