@@ -461,8 +461,8 @@ class SequenceTask(klibs.Experiment):
             msg_y = int(P.screen_y * 0.2)
         )
         self.show_demo_text(
-            ("Instead of using the controller, please enter the sequences using the "
-             "number\nand arrow keys on the keyboard."),
+            ("Instead of using the controller, please enter the sequences using\n"
+             "the *number and arrow keys* on the keyboard."),
             stim['recall_cells'] + stim['seq_recall'] + [progress],
             msg_y = int(P.screen_y * 0.2)
         )
@@ -1017,7 +1017,7 @@ class SequenceTask(klibs.Experiment):
         shape_plural = shape + "ses" if shape == "plus" else shape + "s"
         prompt = (
             "Please enter the sequence that followed the *{0}* to the best of\n"
-            "your memory, using the keyboard:"
+            "your memory, using the number and arrow keys:"
         )
         msg = message(prompt.format(shape_plural), align='center')
         x_locs = get_x_locs(seq_len)
