@@ -992,7 +992,7 @@ class SequenceTask(klibs.Experiment):
                     'element': target_seq[i],
                     'response': resp[i]['item'],
                     'rt': resp[i]['rt'],
-                    'acc': resp[i] == target_seq[i],
+                    'acc': resp[i]['item'] == target_seq[i],
                 }
                 sequence.append(element)
             self.db.insert(sequence, table='recall')
