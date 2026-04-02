@@ -312,7 +312,7 @@ class SequenceTask(klibs.Experiment):
 
     def training_instructions(self):
         stim = self.get_demo_stim()
-        instr_counts = {'PP': 11, 'MI': 11 + 6, 'CC': 11 + 4}
+        instr_counts = {'PP': 11, 'MI': 11 + 6, 'CC': 11 + 5}
         progress = ProgressMessage(
             "Instructions: {0} / {1}", total=instr_counts[P.condition],
             textstyle='progress', autotick=True
@@ -437,8 +437,14 @@ class SequenceTask(klibs.Experiment):
             stim['seq_grey'] + [progress],
         )
         self.show_demo_text(
+            ("Please remember to rehearse the items *silently*. Try not to actually "
+             "say them out loud!"),
+            stim['seq_grey'] + [progress],
+        )
+        self.show_demo_text(
             ("For the sake of the experiment, please only rehearse each sequence once "
-             "per trial!"),
+             "per trial.\nYou will have plenty of chances to practice each sequence, "
+             "so don't worry!"),
             stim['seq_grey'] + [progress],
         )
 
