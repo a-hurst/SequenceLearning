@@ -180,7 +180,7 @@ class SequenceTask(klibs.Experiment):
         self._triggers_down = False
 
         # Create fixation map for training block
-        training_fixations = ['diamond', 'star', 'plus']
+        training_fixations = ['diamond', 'plus']
         self.fixation_map = {}
         for seq in self.practiced_seqs:
             self.fixation_map[seq] = training_fixations.pop()
@@ -315,14 +315,14 @@ class SequenceTask(klibs.Experiment):
 
     def training_instructions(self):
         stim = self.get_demo_stim()
-        instr_counts = {'PP': 11, 'MI': 11 + 6, 'CC': 11 + 5}
+        instr_counts = {'PP': 10, 'MI': 10 + 6, 'CC': 10 + 5}
         progress = ProgressMessage(
             "Instructions: {0} / {1}", total=instr_counts[P.condition],
             textstyle='progress', autotick=True
         )
         self.show_demo_text(
             ("Now that you've gotten some practice, in this next phase of the study "
-             "you will train on\n3 sequences repeatedly to see how much you can "
+             "you will train on\ntwo sequences repeatedly to see how much you can "
              "improve your performance!"),
             stim['fixation'] + [progress],
         )
@@ -333,7 +333,7 @@ class SequenceTask(klibs.Experiment):
             self.training_instructions_cc(progress)
 
         self.show_demo_text(
-            ("In this training block, each of the three sequences will start with a "
+            ("In this training block, each sequence will start with a "
              "different row of shapes."),
             stim['fixation'] + [progress],
         )
@@ -342,11 +342,7 @@ class SequenceTask(klibs.Experiment):
             stim['fix_diamond'] + [progress],
         )
         self.show_demo_text(
-            "Another sequence will start with stars:",
-            stim['fix_star'] + [progress],
-        )
-        self.show_demo_text(
-            "And the third sequence will start with plus signs:",
+            "And the other sequence will start with plus signs:",
             stim['fix_plus'] + [progress],
         )
         self.show_demo_text(
@@ -356,7 +352,7 @@ class SequenceTask(klibs.Experiment):
         )
         self.show_demo_text(
             ("At the end of the study, you will be tested on how *quickly and "
-             "accurately*\nyou can perform each of the three sequences."),
+             "accurately*\nyou can perform each of the sequences."),
             stim['seq_grey'] + [progress],
         )
         self.show_demo_text(
@@ -458,13 +454,13 @@ class SequenceTask(klibs.Experiment):
         )
         self.show_demo_text(
             [("Training complete! Before we begin the test phase, we want to check how "
-             "well you\ncan remember the items of the three sequences you practiced."),
+             "well you\ncan remember the items of the two sequences you practiced."),
              "Please put the controller down and press the space bar to continue."],
             [], msg_y = int(P.screen_y * 0.4)
         )
         self.show_demo_text(
-            ("For each unique starting shape (diamond, star, or plus), you will be "
-             "asked to try and\nremember the corresponding sequence to the best of "
+            ("For each unique starting shape (diamond or plus), you will be "
+             "asked to try and remember\nthe corresponding sequence to the best of "
              "your memory."),
             stim['recall_cells'] + [progress],
             msg_y = int(P.screen_y * 0.2)
@@ -514,8 +510,8 @@ class SequenceTask(klibs.Experiment):
             stim['seq_grey'] + [progress],
         )
         self.show_demo_text(
-            ("Note that this block contains 6 different sequences: the 3 you practiced "
-             "during the training\nphase, and 3 unpracticed sequences. Try your "
+            ("Note that this block contains 4 different sequences: the 2 you practiced "
+             "during the training\nphase, and 2 new sequences. Try your "
              "best to perform well on all of them!"),
             stim['seq_grey'] + [progress],
         )

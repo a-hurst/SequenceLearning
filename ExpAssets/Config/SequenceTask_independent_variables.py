@@ -4,10 +4,10 @@ from klibs.KLStructure import FactorSet, Block
 import random
 
 
-# Randomly select 3 of 6 sequences to be practiced sequences
+# Randomly select 2 of 4 sequences to be practiced sequences
 
-sequences = ['seq1', 'seq2', 'seq3', 'seq4', 'seq5', 'seq6']
-training_sequences = random.sample(sequences, 3)
+sequences = ['seq1', 'seq2', 'seq3', 'seq4']
+training_sequences = random.sample(sequences, 2)
 
 exp_factors = FactorSet({
     'seq_name': training_sequences,
