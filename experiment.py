@@ -917,10 +917,16 @@ class SequenceTask(klibs.Experiment):
         pairs = list(itertools.permutations(self.icons.keys(), r=2))
         shuffle(pairs)
 
+        # Remind participants to squeeze triggers if they forget
+        trig_msg = message(
+            "Please squeeze the rear triggers to complete each sequence!"
+        )
+
         # Iterate through pairs until all completed successfully
         pairs_err = message("XXXX", style="wrong")
         while len(pairs):
             progress = 0
+            done_time = None
             seq = pairs.pop()
             stim = [self.icons_grey[e] for e in seq]
 
@@ -933,7 +939,11 @@ class SequenceTask(klibs.Experiment):
                 target = seq[progress] if progress < 2 else "triggers"
                 response, timestamp = self.get_sequence_input()
                 if not response:
-                    continue
+                    if done_time and (sdl2.SDL_GetTicks() - done_time) > 3000:
+                        self.show_feedback(trig_msg, duration=2.5)
+                        break
+                    else:
+                        continue
                 elif response == target:
                     progress += 1
                     if progress == 1:
@@ -946,6 +956,7 @@ class SequenceTask(klibs.Experiment):
                         fill()
                         draw_sequence(stim, self.item_offset)
                         flip()
+                        done_time = sdl2.SDL_GetTicks()
                     else:
                         fill()
                         flip()
