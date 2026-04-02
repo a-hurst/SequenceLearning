@@ -47,6 +47,7 @@ CREATE TABLE participants (
     gender text not null,
     age integer not null, 
     handedness text not null,
+    game_exp integer not null,
     created text not null
 );
 
