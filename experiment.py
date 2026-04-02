@@ -109,15 +109,18 @@ class SequenceTask(klibs.Experiment):
             #8: "Up-Left",
         }
         self.buttonmap = {
-            "dpup": "Up",
-            "dpdown": "Down",
-            "dpleft": "Left",
-            "dpright": "Right",
             "x": "1",
             "y": "2",
             "b": "3",
             "a": "4",
         }
+        if P.allow_dpad or not self.gamepad:
+            self.buttonmap.update({
+                "dpup": "Up",
+                "dpdown": "Down",
+                "dpleft": "Left",
+                "dpright": "Right",
+            })
 
         # Generate task stimuli
         self.fixations = {

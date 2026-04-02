@@ -30,8 +30,8 @@ default_font_name = 'Roboto-Medium'
 # Experiment Structure
 #########################################
 multi_session_project = False
-trials_per_block = 120
-blocks_per_experiment = 1
+trials_per_block = 150
+blocks_per_experiment = 3
 table_defaults = {}
 conditions = ['PP', 'MI', 'CC']
 default_condition = 'PP'
@@ -65,6 +65,7 @@ append_hostname = False
 #########################################
 # PROJECT-SPECIFIC VARS
 #########################################
+allow_dpad = False
 sequences = {
     'seq1': ["2", "Down", "1", "3", "Down", "Right", "Up"],
     'seq2': ["3", "Right", "2", "3", "Down", "Left", "Up"],
@@ -73,4 +74,3 @@ sequences = {
     'seq5': ["Right", "Up", "4", "2", "Left", "Down", "1"],
     'seq6': ["Up", "Left", "3", "4", "Right", "Up", "2"],
 }
-
