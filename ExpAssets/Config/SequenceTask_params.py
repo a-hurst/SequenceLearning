@@ -67,8 +67,8 @@ append_hostname = False
 #########################################
 allow_dpad = False
 sequences = {
-    'seq1': ["2", "Down", "3", "1", "Down", "Right", "Up"],
-    'seq2': ["3", "Right", "2", "3", "Down", "Left", "Up"],
+    'seq1': ["2", "Down", "3", "1", "Down", "Right", "Left"],
+    'seq2': ["3", "Right", "2", "3", "Down", "Left", "Right"],
     'seq3': ["1", "Left", "4", "1", "Up", "Left", "3"],
-    'seq4': ["4", "Down", "1", "2", "Right", "Down", "4"],
+    'seq4': ["4", "Up", "1", "2", "Right", "Down", "4"],
 }
