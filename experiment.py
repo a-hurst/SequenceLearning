@@ -237,7 +237,7 @@ class SequenceTask(klibs.Experiment):
             "Instructions: {0} / {1}", total=4, textstyle='progress', autotick=True
         )
         self.show_demo_text(
-            ("Now that you have a feel for the basics, let's try practicing some "
+            ("Now that you have a feel for the basics, next we'll try practicing some "
              "simple sequences."),
             stim['pair'] + [progress],
         )
