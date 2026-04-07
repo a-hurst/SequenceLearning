@@ -20,7 +20,7 @@ from klibs.KLUtilities import line_segment_len as linear_dist
 from klibs.KLTime import CountDown
 from klibs.KLText import add_text_style, TextStyle
 from klibs.KLCommunication import message
-from klibs.KLUserInterface import any_key, mouse_pos, ui_request, hide_cursor
+from klibs.KLUserInterface import any_key, mouse_pos, ui_request, key_pressed
 from sdl2.ext import get_key_state
 
 from gamepad import gamepad_init, button_pressed, ControllerButton, VirtualButton
@@ -194,337 +194,341 @@ class SequenceTask(klibs.Experiment):
 
     def task_tutorial(self):
         stim = self.get_demo_stim()
-        progress = ProgressMessage(
-            "Instructions: {0} / {1}", total=6, textstyle='progress', autotick=True
-        )
-        self.show_demo_text(
+        p1 = InstructionPage(
             "Welcome to the experiment! This tutorial will help explain the task.",
-            stim['fixation'] + [progress],
+            stim['fixation'],
         )
-        self.show_demo_text(
+        p2 = InstructionPage(
             ("On each trial of the experiment, you will be shown a sequence of "
              "arrows and numbers."),
-            stim['seq'] + [progress],
+            stim['seq'],
         )
-        self.show_demo_text(
+        p3 = InstructionPage(
             ["Each sequence item corresponds to an input on the game controller.",
             "Arrows (Up, Down, Left, Right) represent movements with the left stick:"],
-            stim['arrows'] + [progress],
+            stim['arrows'],
         )
-        self.show_demo_text(
+        p4 = InstructionPage(
             ("Numbers (1, 2, 3, 4) represent button presses on the right side of "
              "the controller:"),
-            stim['numbers'] + [progress],
+            stim['numbers'],
         )
-        self.show_demo_text(
+        p5 = InstructionPage(
             ("The numbers are mapped to buttons in clockwise order, as "
              "illustrated below:"),
-            stim['buttons'] + [progress],
+            stim['buttons'],
         )
-        self.show_demo_text(
+        p6 = InstructionPage(
             ("Each sequence is made of numbers (button presses) and arrows (stick "
              "movements).\nYour job will be to repeat these sequences yourself using "
              "the game controller."),
-            stim['seq'] + [progress],
+            stim['seq'],
         )
+        instructions = InstructionSet([p1, p2, p3, p4, p5, p6], self.gamepad)
+        instructions.run()
+
         self.input_demo()
-        self.show_demo_text(
+        show_demo_text(
             ["Input demo complete!",
              "Press any button to start the next phase of instructions."],
             [], msg_y = int(P.screen_y * 0.45)
         )
-        progress = ProgressMessage(
-            "Instructions: {0} / {1}", total=4, textstyle='progress', autotick=True
-        )
-        self.show_demo_text(
+        wait_for_input(self.gamepad, demo=True)
+
+        p7 = InstructionPage(
             ("Now that you have a feel for the basics, next we'll try practicing some "
              "simple sequences."),
-            stim['pair'] + [progress],
+            stim['pair'],
         )
-        self.show_demo_text(
+        p8 = InstructionPage(
             ("Each sequence will be a pair of items. Simply respond to each item in "
              "order\n(not at the same time!) and then squeeze the rear triggers to "
              "continue."),
-            stim['pair'] + [progress],
+            stim['pair'],
         )
-        self.show_demo_text(
+        p9 = InstructionPage(
             ("Don't worry about going quickly, just focus on making the right "
              "movements!"),
-            stim['pair'] + [progress],
+            stim['pair'],
         )
-        self.show_demo_text(
+        p10 = InstructionPage(
             ["If you make a mistake, you will be shown feedback to let you know.",
              "If this happens, just take a deep breath and try again."],
-            stim['pair_err'] + [progress],
+            stim['pair_err'],
         )
-        self.show_demo_text(
+        instructions2 = InstructionSet([p7, p8, p9, p10], self.gamepad)
+        instructions2.run()
+        show_demo_text(
             "When you're ready, press any button to begin.", [],
             duration=1.0, msg_y=int(P.screen_y * 0.4)
         )
+        wait_for_input(self.gamepad, demo=True)
+
         self.pairs_practice()
-        self.show_demo_text(
+        show_demo_text(
             ["Pair practice complete!",
              "Press any button to start the next phase of instructions."],
             [], msg_y = int(P.screen_y * 0.45)
         )
+        wait_for_input(self.gamepad, demo=True)
 
 
     def practice_instructions(self):
         stim = self.get_demo_stim()
-        progress = ProgressMessage(
-            "Instructions: {0} / {1}", total=7, textstyle='progress', autotick=True
-        )
-        self.show_demo_text(
+        p1 = InstructionPage(
             ("Now that you have some practice with the controls, let's try some "
              "full sequences!"),
-            stim['fixation'] + [progress],
+            stim['fixation'],
         )
-        self.show_demo_text(
+        p2 = InstructionPage(
             ("Each trial starts with a row of shapes, showing you where the sequence "
              "is about to appear:"),
-            stim['fixation'] + [progress],
+            stim['fixation'],
         )
-        self.show_demo_text(
+        p3 = InstructionPage(
             ("When the sequence appears, try to quickly perform the sequence of "
              "movements\nyourself by using the joystick and buttons on the game "
              "controller."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        p4 = InstructionPage(
             ("The icons will light up as you make each movement in the sequence, "
              "letting you know\nyou responded correctly and showing your progress."),
-            stim['seq_progress'] + [progress],
+            stim['seq_progress'],
         )
-        self.show_demo_text(
+        p5 = InstructionPage(
             ("If the next icon does *not* light up when you make a movement, this "
              "means that your last\ninput was either wrong or didn't register. If this "
              "happens, simply try the input again."),
-            stim['seq_progress'] + [progress],
+            stim['seq_progress'],
         )
-        self.show_demo_text(
+        p6 = InstructionPage(
             ("Once you have responded to all items in the sequence, squeeze both "
              "triggers at once\non the back of the controller to end the trial."),
-            stim['seq'] + [progress],
+            stim['seq'],
         )
-        self.show_demo_text(
+        p7 = InstructionPage(
             ("At the end of each trial, you will be given feedback on your speed and "
              "accuracy.\nPlease try to complete the sequences as quickly as you can "
              "without making mistakes!"),
-            stim['feedback'] + [progress],
+            stim['feedback'],
         )
+        instructions = InstructionSet([p1, p2, p3, p4, p5, p6, p7], self.gamepad)
+        instructions.run()
+
 
     def training_instructions(self):
         stim = self.get_demo_stim()
-        instr_counts = {'PP': 10, 'MI': 10 + 6, 'CC': 10 + 5}
-        progress = ProgressMessage(
-            "Instructions: {0} / {1}", total=instr_counts[P.condition],
-            textstyle='progress', autotick=True
-        )
-        self.show_demo_text(
+        t1 = InstructionPage(
             ("Now that you've gotten some practice, in this next phase of the study "
              "you will train on\ntwo sequences repeatedly to see how much you can "
              "improve your performance!"),
-            stim['fixation'] + [progress],
+            stim['fixation'],
         )
-
-        if P.condition == "MI":
-            self.training_instructions_mi(progress)
-        elif P.condition == "CC":
-            self.training_instructions_cc(progress)
-
-        self.show_demo_text(
+        t2 = InstructionPage(
             ("In this training block, each sequence will start with a "
              "different row of shapes."),
-            stim['fixation'] + [progress],
+            stim['fixation'],
         )
-        self.show_demo_text(
+        t3 = InstructionPage(
             "One sequence will start with diamonds:",
-            stim['fix_diamond'] + [progress],
+            stim['fix_diamond'],
         )
-        self.show_demo_text(
+        t4 = InstructionPage(
             "And the other sequence will start with plus signs:",
-            stim['fix_plus'] + [progress],
+            stim['fix_plus'],
         )
-        self.show_demo_text(
+        t5 = InstructionPage(
             ("You can use these shapes to help prepare for each sequence before "
              "it appears!"),
-            stim['fix_plus'] + [progress],
+            stim['fix_plus'],
         )
-        self.show_demo_text(
+        t6 = InstructionPage(
             ("At the end of the study, you will be tested on how *quickly and "
              "accurately*\nyou can perform each of the sequences."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        t7 = InstructionPage(
             ("Because this is a *training* phase, your goal is to practice the "
              "sequences in order\nto perform as well as you can in the final "
              "test block."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        t8 = InstructionPage(
             ("In other words, we want you to focus on improving your *future* sequence "
              "performance\ninstead of trying to practice as quickly as you can "
              "right now."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        t9 = InstructionPage(
             ("If you think going slowly through the sequence items would help more\n"
              "in the long run, please take your time!"),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        t10 = InstructionPage(
             ("As you practice the sequences, you will be regularly updated on\n"
              "your progress and have the chance to take breaks."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
+        if P.condition == "MI":
+            mi_pages = self.training_instructions_mi()
+            pages = [t1] + mi_pages + [t2, t3, t4, t5, t6, t7, t8, t9, t10]
+        elif P.condition == "CC":
+            cc_pages = self.training_instructions_cc()
+            pages = [t1] + cc_pages + [t2, t3, t4, t5, t6, t7, t8, t9, t10]
+        else:
+            pages = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]
+        instructions = InstructionSet(pages, self.gamepad)
+        instructions.run()
 
-    def training_instructions_mi(self, progress):
+    def training_instructions_mi(self):
         stim = self.get_demo_stim()
-        self.show_demo_text(
+        mi1 = InstructionPage(
             ("During this block, instead of performing sequences of movements "
              "*physically*,\nplease rehearse the sequences *mentally* using motor "
              "imagery."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        mi2 = InstructionPage(
             ("This means that instead of physically pressing buttons or moving the "
              "joystick, try to\nsimply *imagine* the movements you would need to make "
              "for each sequence."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        mi3 = InstructionPage(
             ("For example, you might visualize how your right thumb would move "
              "between the 2, 1,\n& 3 buttons, then imagine using your left thumb to "
              "move the stick right, up, down, & left."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        mi4 = InstructionPage(
             ("If it helps, you can try to visualize the icons lighting up and simulate "
              "how each\nmovement would *feel* as you move through the sequence in "
              "your mind."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        mi5 = InstructionPage(
             ("Please try to avoid actually moving your hands and keep your thumbs\n"
              "relaxed as you imagine performing the movements."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        mi6 = InstructionPage(
             ("Once you have completed the sequence in your mind, please squeeze\n"
              "the rear triggers *physically* to end the trial."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
+        return [mi1, mi2, mi3, mi4, mi5, mi6]
 
-    def training_instructions_cc(self, progress):
+    def training_instructions_cc(self):
         stim = self.get_demo_stim()
-        self.show_demo_text(
+        cc1 = InstructionPage(
             ("During this block, instead of performing sequences of movements "
              "*physically*,\nplease rehearse the sequences *mentally* by repeating "
              "them silently in your head."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        cc2 = InstructionPage(
             ("For example, you would practice the sequence below by repeating "
             "“two, one, three, right,\nup, down, left” to yourself silently, and "
             "then squeezing the triggers to end the trial."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        cc3 = InstructionPage(
             ("Please try and keep your hands still and avoid actual movement during "
              "mental rehearsal.\nSimply focus on trying to memorize each sequence by "
              "rehearsing the names of its items."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        cc4 = InstructionPage(
             ("Please remember to rehearse the items *silently*. Try not to actually "
              "say them out loud!"),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        cc5 = InstructionPage(
             ("For the sake of the experiment, please only rehearse each sequence once "
              "per trial.\nYou will have plenty of chances to practice each sequence, "
              "so don't worry!"),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
+        return [cc1, cc2, cc3, cc4, cc5]
 
     def recall_instructions(self):
         stim = self.get_demo_stim()
-        progress = ProgressMessage(
-            "Instructions: {0} / {1}", total=5, textstyle='progress', autotick=True
-        )
-        self.show_demo_text(
+        p1 = InstructionPage(
             [("Training complete! Before we begin the test phase, we want to check how "
              "well you\ncan remember the items of the two sequences you practiced."),
              "Please put the controller down and press the space bar to continue."],
             [], msg_y = int(P.screen_y * 0.4)
         )
-        self.show_demo_text(
+        p2 = InstructionPage(
             ("For each unique starting shape (diamond or plus), you will be "
              "asked to try and remember\nthe corresponding sequence to the best of "
              "your memory."),
-            stim['recall_cells'] + [progress],
+            stim['recall_cells'],
             msg_y = int(P.screen_y * 0.2)
         )
-        self.show_demo_text(
+        p3 = InstructionPage(
             ("Instead of using the controller, please enter the sequences using\n"
              "the *number and arrow keys* on the keyboard."),
-            stim['recall_cells'] + stim['seq_recall'] + [progress],
+            stim['recall_cells'] + stim['seq_recall'],
             msg_y = int(P.screen_y * 0.2)
         )
-        self.show_demo_text(
+        p4 = InstructionPage(
             ("This section is not timed, so don't worry about answering quickly!\nJust "
              "do your best to remember the items for each sequence."),
-            stim['recall_cells'] + stim['seq_recall'] + [progress],
+            stim['recall_cells'] + stim['seq_recall'],
             msg_y = int(P.screen_y * 0.2)
         )
-        self.show_demo_text(
+        p5 = InstructionPage(
             ("Don't worry if you haven't fully memorized a sequence, it's okay if "
              "you don't remember\nperfectly. If you can't remember an item just "
              "take a guess!"),
-            stim['recall_cells'] + stim['seq_recall'] + [progress],
+            stim['recall_cells'] + stim['seq_recall'],
             msg_y = int(P.screen_y * 0.2)
         )
-        self.show_demo_text(
+        p6 = InstructionPage(
             ("If you make a mistake typing the sequence, press the Backspace key to "
              "undo the\nprevious item. When you are ready to submit, press the "
              "Enter key."),
-            stim['recall_cells'] + stim['seq_recall2'] + [progress],
+            stim['recall_cells'] + stim['seq_recall2'],
             msg_y = int(P.screen_y * 0.2)
         )
+        instructions = InstructionSet([p1, p2, p3, p4, p5, p6], self.gamepad)
+        instructions.run()
+
 
     def test_instructions(self):
         stim = self.get_demo_stim()
-        progress = ProgressMessage(
-            "Instructions: {0} / {1}", total=5, textstyle='progress', autotick=True
-        )
-        self.show_demo_text(
+        p1 = InstructionPage(
             ("Welcome to the final phase of the experiment! In this section, you "
              "will be tested on\nhow quickly and accurately you can perform the "
              "sequences you practiced."),
-            stim['fixation'] + [progress],
+            stim['fixation'],
         )
-        self.show_demo_text(
+        p2 = InstructionPage(
             ("For this phase, please perform the sequences physically using the game "
              "controller.\nYou will receive feedback on your accuracy and response "
              "times."),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        p3 = InstructionPage(
             ("Note that this block contains 4 different sequences: the 2 you practiced "
              "during the training\nphase, and 2 new sequences. Try your "
              "best to perform well on all of them!"),
-            stim['seq_grey'] + [progress],
+            stim['seq_grey'],
         )
-        self.show_demo_text(
+        p4 = InstructionPage(
             "In this block, the starting row of shapes is the same for all sequences.",
-            stim['fixation'] + [progress],
+            stim['fixation'],
         )
-        self.show_demo_text(
+        p5 = InstructionPage(
             ("At the end of each trial, you will be given feedback on your speed and "
              "accuracy.\nPlease try to complete the sequences as quickly as you can "
              "without making mistakes!"),
-            stim['feedback'] + [progress],
+            stim['feedback'],
         )
+        instructions = InstructionSet([p1, p2, p3, p4, p5], self.gamepad)
+        instructions.run()
 
 
     def block(self):
@@ -783,10 +787,11 @@ class SequenceTask(klibs.Experiment):
             if P.trial_number == P.trials_per_block or self.block_label == "practice":
                 return
             pct = int((P.trial_number / P.trials_per_block) * 100)
-            self.show_demo_text(
+            show_demo_text(
                 [b1.format(pct, P.trial_number, P.trials_per_block), b2], [],
                 msg_y = int(P.screen_y * 0.45)
             )
+            wait_for_input(self.gamepad)
             # Blank screen before returning to task to give time for button release
             fill()
             flip()
@@ -1131,38 +1136,6 @@ class SequenceTask(klibs.Experiment):
         return lt < 0.5 and rt < 0.5
 
 
-    def show_demo_text(self, msgs, stim_set, duration=2.0, wait=True, msg_y=None):
-        msg_x = int(P.screen_x / 2)
-        msg_y = int(P.screen_y * 0.25) if msg_y is None else msg_y
-        half_space = deg_to_px(0.5)
-
-        fill()
-        if not isinstance(msgs, list):
-            msgs = [msgs]
-        for msg in msgs:
-            txt = message(msg, align="center")
-            blit(txt, 8, (msg_x, msg_y))
-            msg_y += txt.height + half_space
-    
-        for x in stim_set:
-            # If background stimulus has blit() method, use that to draw it
-            if hasattr(x, 'blit'):
-                x.blit()
-            else:
-                stim, locs = x
-                if not isinstance(locs, list):
-                    locs = [locs]
-                for loc in locs:
-                    blit(stim, 5, loc)
-        flip()
-        if P.development_mode and wait:
-            wait_msec(500)
-        else:
-            wait_msec(duration * 1000)
-        if wait:
-            wait_for_input(self.gamepad, demo=True)
-
-
     def get_stick_movement(self, from_center=True):
         state = None
         movement = None
@@ -1210,7 +1183,11 @@ class ProgressMessage():
     def tick(self):
         if self.progress < self.total:
             self.progress += 1
-    
+
+    def back(self):
+        if self.progress > 0:
+            self.progress -= 1
+
     @property
     def done(self):
         return self.progress >= self.total
@@ -1221,6 +1198,96 @@ class ProgressMessage():
         txt = self.fmt.format(self.progress, self.total)
         msg = message(txt, style=self.fstyle)
         blit(msg, self.reg, self.loc)
+
+
+class InstructionPage():
+
+    def __init__(self, msgs, stim_set, duration=2.0, msg_y=None):
+        self.msgs = msgs
+        self.stimset = stim_set
+        self.duration = duration
+        self.msg_y = msg_y
+
+    @property
+    def data(self):
+        return (self.msgs, self.stimset, self.duration, self.msg_y)
+
+
+class InstructionSet():
+    
+    def __init__(self, pages, gamepad=None):
+        self.pages = pages
+        self.gamepad = gamepad
+        self.progress = ProgressMessage(
+            "Instructions: {0} / {1}", total=len(pages), textstyle='progress'
+        )
+        self.progress.progress = 1
+
+    def run(self):
+        num_pages = len(self.pages)
+        progress = 0
+
+        idx = 0
+        while idx < num_pages:
+
+            msgs, stimset, duration, msg_y = self.pages[idx].data
+            if idx < progress:
+                duration = 0
+            elif idx > progress:
+                progress = idx
+            show_demo_text(msgs, stimset + [self.progress], duration, msg_y)
+
+            while True:
+                if self.gamepad:
+                    self.gamepad.update()
+                q = pump()
+                ui_request(queue=q)
+                # Allow skipping instructions with Esc in devmode
+                if P.development_mode:
+                    if key_pressed('Escape', queue=q):
+                        raise SkipInstructions
+                # Otherwise, check for valid controller input
+                buttons = get_buttons(q)
+                if len(buttons):
+                    b = buttons[0]
+                    if b.name == 'b':
+                        idx += 1
+                        self.progress.tick()
+                        break
+                    elif b.name == 'x' and idx > 0:
+                        idx -= 1
+                        self.progress.back()
+                        break
+
+
+
+def show_demo_text(msgs, stim_set, duration=2.0, msg_y=None):
+    msg_x = int(P.screen_x / 2)
+    msg_y = int(P.screen_y * 0.25) if msg_y is None else msg_y
+    half_space = deg_to_px(0.5)
+
+    fill()
+    if not isinstance(msgs, list):
+        msgs = [msgs]
+    for msg in msgs:
+        txt = message(msg, align="center")
+        blit(txt, 8, (msg_x, msg_y))
+        msg_y += txt.height + half_space
+
+    for x in stim_set:
+        # If background stimulus has blit() method, use that to draw it
+        if hasattr(x, 'blit'):
+            x.blit()
+        else:
+            stim, locs = x
+            if not isinstance(locs, list):
+                locs = [locs]
+            for loc in locs:
+                blit(stim, 5, loc)
+    flip()
+    if duration > 0:
+        duration_ms = 500 if P.development_mode else duration * 1000
+        wait_msec(duration_ms)
 
 
 def joystick_scaled(x, y, deadzone = 0.2):
