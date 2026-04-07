@@ -1326,7 +1326,7 @@ def get_stick_position(gamepad, left=True):
     return joystick_scaled(raw_x, raw_y)
 
 
-def get_stick_direction(gamepad, left=True, threshold = 0.8):
+def get_stick_direction(gamepad, left=True, threshold=0.8, buffer=10):
     # Converts stick direction to an integer between 1 and 8, depending on the
     # quadrant of movement (0 = no stick movement)
     x, y = get_stick_position(gamepad, left=left)
@@ -1334,9 +1334,10 @@ def get_stick_direction(gamepad, left=True, threshold = 0.8):
     if amplitude > threshold:
         # Split into 8 quadrants with up/down/left/right having 70° ranges 
         # with 20° buffer zones in between
-        angle = angle_between((0, 0), (x, y), rotation=-125, clockwise=True)
+        s = -(90 + (90 - buffer) / 2) # starting angle offset
+        angle = angle_between((0, 0), (x, y), rotation=s, clockwise=True)
         zone = int(angle / 90.0)
-        offset = 1 if (angle % 90 > 70) else 0
+        offset = 1 if (angle % 90 > (90 - buffer)) else 0
         return (zone * 2) + offset + 1
     return 0
 
