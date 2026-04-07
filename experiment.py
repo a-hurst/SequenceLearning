@@ -178,6 +178,7 @@ class SequenceTask(klibs.Experiment):
         self.practiced_seqs = self.exp_factors["seq_name"]
         self.seq_history = []
         self._triggers_down = False
+        self._stick_prev_direction = 0
 
         # Create fixation map for training block
         training_fixations = ['diamond', 'plus']
@@ -229,14 +230,16 @@ class SequenceTask(klibs.Experiment):
 
         self.input_demo()
         show_demo_text(
-            ["Input demo complete!",
-             "Press any button to start the next phase of instructions."],
-            [], msg_y = int(P.screen_y * 0.45)
+            [("In the next set of instructions you will be shown some example "
+              "sequences.\nThey are not part of the task, you do not need to "
+              "respond to them!\n"),
+             "Please press any button to begin."],
+            [], msg_y = int(P.screen_y * 0.35)
         )
         wait_for_input(self.gamepad, demo=True)
 
         p7 = InstructionPage(
-            ("Now that you have a feel for the basics, next we'll try practicing some "
+            ("Now that you have a feel for the basics, next we'll try some "
              "simple sequences."),
             stim['pair'],
         )
@@ -848,7 +851,7 @@ class SequenceTask(klibs.Experiment):
             stimset['arrows'].append((self.icons[arrows[i]], loc))
             stimset['numbers'].append((self.icons[numbers[i]], loc))
             i += 1
-        pair = ['3', 'Down']
+        pair = ['4', 'Down']
         i = 0
         for x_loc in get_x_locs(2):
             loc = (int(P.screen_c[0] + self.item_offset * x_loc), P.screen_c[1])
