@@ -496,7 +496,7 @@ class SequenceTask(klibs.Experiment):
             stim['recall_cells'] + stim['seq_recall2'],
             msg_y = int(P.screen_y * 0.2)
         )
-        instructions = InstructionSet([p1, p2, p3, p4, p5, p6], self.gamepad)
+        instructions = InstructionSet([p1, p2, p3, p4, p5, p6], keyboard=True)
         instructions.run()
 
 
@@ -1218,9 +1218,10 @@ class InstructionPage():
 
 class InstructionSet():
     
-    def __init__(self, pages, gamepad=None):
+    def __init__(self, pages, gamepad=None, keyboard=False):
         self.pages = pages
         self.gamepad = gamepad
+        self.keyboard = keyboard
         self.progress = ProgressMessage(
             "Instructions: {0} / {1}", total=len(pages), textstyle='progress'
         )
@@ -1249,6 +1250,16 @@ class InstructionSet():
                 if P.development_mode:
                     if key_pressed('Escape', queue=q):
                         raise SkipInstructions
+                # If using keyboard, only check for key input
+                if self.keyboard:
+                    if key_pressed('Space', queue=q):
+                        idx += 1
+                        self.progress.tick()
+                        break
+                    elif key_pressed('Backspace', queue=q):
+                        idx -= 1
+                        self.progress.back()
+                        break
                 # Otherwise, check for valid controller input
                 buttons = get_buttons(q)
                 if len(buttons):
