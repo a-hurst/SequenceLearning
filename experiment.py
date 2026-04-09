@@ -426,8 +426,8 @@ class SequenceTask(klibs.Experiment):
         stim = self.get_demo_stim()
         cc1 = InstructionPage(
             ("During this block, instead of performing sequences of movements "
-             "*physically*,\nplease rehearse the sequences *mentally* by repeating "
-             "them silently in your head."),
+             "*physically*,\nplease rehearse the sequences *verbally* by repeating "
+             "the items silently in your head."),
             stim['seq_grey'],
         )
         cc2 = InstructionPage(
@@ -438,7 +438,7 @@ class SequenceTask(klibs.Experiment):
         )
         cc3 = InstructionPage(
             ("Please try and keep your hands still and avoid actual movement during "
-             "mental rehearsal.\nSimply focus on trying to memorize each sequence by "
+             "verbal rehearsal.\nSimply focus on trying to memorize each sequence by "
              "rehearsing the names of its items."),
             stim['seq_grey'],
         )
