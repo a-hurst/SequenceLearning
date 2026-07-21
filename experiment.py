@@ -720,7 +720,7 @@ class SequenceTask(klibs.Experiment):
 
         # If MI/CC training trial and response is implausibly fast, show error
         if self.trial_type != "PP" and err == "NA":
-            if (timestamp - start) < 1500:
+            if (timestamp - start) < 1200:
                 err = "too_fast"
 
         # Show RT feedback for 1.7 seconds, or error if trial timed out
